@@ -730,7 +730,7 @@ function moodStop(fade=1){if(!MOOD.out||!AC){MOOD.on=false;return;}clearInterval
 /* ---------- 操作 ---------- */
 function drawRows(){const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row"><div class="lab">${LAB[slot]}</div><div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
  $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);}
-$('rows').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||T<busyUntil||!S.active)return;const s=b.dataset.s,k=b.dataset.k;if(s==='fin'&&sel.fin===k){sel.fin=null;D.fin=null;drawRows();return;}if(sel[s]===k)return;sel[s]=k;drawRows();act(s,k);});
+$('rows').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||T<busyUntil||!S.active)return;const s=b.dataset.s,k=b.dataset.k;if(s==='fin'&&sel.fin===k){sel.fin=null;D.fin=null;drawRows();return;}if(sel[s]===k)return;sel[s]=k;drawRows();if(!$('order').classList.contains('folded')){finishSay();setFold(true);}act(s,k);});
 function recomputeFill(){fillTarget=(sel.sky?.6:0)+(sel.season?.3:0);pourOrder=pourOrder.filter(x=>sel[x]);
  const cs=pourOrder.map(x=>col(ING[x].find(i=>i.k===sel[x]).c));if(!cs.length){tintT.set(1,1,1);tintBT.set(1,1,1);}else{tintT.copy(cs[0]);tintBT.copy(cs[cs.length-1]);}}
 /* ---------- 材料ごとの音（ぽとん＋にじみ出る音） ---------- */
@@ -765,9 +765,12 @@ function act(slot,k){busyUntil=T+.55;readyAt=T+1.6;
 function dropGarnish(k){if(garn){garn.die=true;dying.push(garn);}const m=makeGarnish(k);scene.add(m);garn={m,y:2.9,vy:0,st:'fall',k,a:Math.random()*6};m.position.set(.3,2.9,.12);}
 function clearGlass(){sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
 $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
-$('hintBtn').onclick=()=>{if(S.active)say(S.queue[S.idx].text);};
-$('order').onclick=()=>finishSay();
-$('fold').onclick=e=>{e.stopPropagation();const f=$('order').classList.toggle('folded');$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');};
+$('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}};
+/* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
+let saying=false;
+function setFold(f){$('order').classList.toggle('folded',f);$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');}
+$('order').onclick=()=>{if(saying){finishSay();return;}setFold(!$('order').classList.contains('folded'));};
+$('fold').onclick=e=>{e.stopPropagation();finishSay();setFold(!$('order').classList.contains('folded'));};
 
 /* カメラ操作 */
 let drag=null;
@@ -787,15 +790,15 @@ const saveSV=()=>{try{localStorage.setItem('kioku-bar-save-v1',JSON.stringify({n
 let BOOK={};try{BOOK=JSON.parse(localStorage.getItem('kioku-bar-book-v1')||'{}')||{};}catch(e){BOOK={};}
 const saveBook=()=>{try{localStorage.setItem('kioku-bar-book-v1',JSON.stringify(BOOK));}catch(e){}};
 let sayTimer=null,sayText='';
-function say(t){sayText=t;clearInterval(sayTimer);const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length)clearInterval(sayTimer);},42);}
-function finishSay(){clearInterval(sayTimer);$('memory').textContent=sayText;}
+function say(t){sayText=t;clearInterval(sayTimer);saying=true;const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;}},42);}
+function finishSay(){clearInterval(sayTimer);saying=false;$('memory').textContent=sayText;}
 function startNight(){const regs=REGS.filter(r=>S.night>=r.from&&S.eps[r.id]<r.eps.length).map(r=>({...r.eps[S.eps[r.id]],who:r.who,look:r.look,rim:r.rim,reg:r.id,epNo:S.eps[r.id]+1,epAll:r.eps.length})),n=5-regs.length;if(S.deck.length<n)S.deck=S.deck.concat(ORDERS.slice().sort(()=>Math.random()-.5));const rs=S.deck.splice(0,n),gs=regs.slice(),q=[];while(gs.length||rs.length){if(gs.length&&(gs.length>=rs.length||!rs.length))q.push(gs.shift());if(rs.length)q.push(rs.shift());}const mi=q.findIndex(x=>x.reg==='minato');if(S.night===1&&mi>0)q.unshift(q.splice(mi,1)[0]);S.queue=q;S.idx=0;S.results=[];saveSV();showCustomer();}
 const FACEW={'仕事帰りの女性':'f1','大学生':'m1','通勤中の会社員':'m2','配達員':'m1','高校の先生':'m2','出張帰りの男性':'m2','ひとり客':'f1','終電を逃した青年':'m1','文庫本を持つ女性':'f1','自転車乗り':'m1','着物の女性':'f2','近所のおじさん':'m2','家族連れの父親':'m2','詩を書く人':'f2'};
 const faceUrl=(o,e)=>`art/faces/${o.reg||FACEW[o.who]||'m2'}_${e}.webp`,FTEX={};
 function setFace(o){const u=faceUrl(o,1);$('ava').style.backgroundImage=`url(${u})`;silT=1;
  const use=t=>{silMat.map=t;silMat.color.set('#bdb8cc');silMat.needsUpdate=true;const asp=t.image.width/t.image.height;silS.scale.set(4.4*asp,4.4,1);};
  if(FTEX[u])use(FTEX[u]);else new THREE.TextureLoader().load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;FTEX[u]=t;if(S.queue[S.idx]===o)use(t);});}
-function showCustomer(){const o=S.queue[S.idx];sfxStep=0;$('tip').hidden=!(S.night===1&&S.idx===0);moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;},350);$('night').textContent=`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`;drawRows();}
+function showCustomer(){const o=S.queue[S.idx];sfxStep=0;setFold(false);$('tip').hidden=!(S.night===1&&S.idx===0);moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;},350);$('night').textContent=`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`;drawRows();}
 const cname=(a,b,c,f)=>`${SEAW[b]}と${LANDW[c]}の${SKYW[a]}`+(f?`、${FINW[f]}`:'');
 function reply(o,m){const miss=['sky','season','land'].filter(k=>!m[k]),P=miss.map(k=>FEELP[o[k]]);if(!miss.length)return o.thanks;
  const t=miss.length===1?`近い……。でも、あの日はもう少し${P[0]}気がします。`:miss.length===2?`きれいですね。……でも、あの日はもっと${P[0]}し、${P[1]}気がするんです。`:`知らない景色……。あの日は${P[0]}し、${P[1]}し、それに${P[2]}んです。でも、これはこれで、ほっとします。`;
