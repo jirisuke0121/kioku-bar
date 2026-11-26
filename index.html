@@ -32,6 +32,11 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .ib{pointer-events:auto;height:40px;min-width:44px;padding:0 12px;border-radius:20px;border:1px solid var(--line);background:rgba(11,17,36,.55);color:var(--ink);font:500 13px/1 "Zen Kaku Gothic New",sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);white-space:nowrap}
 .order{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;transition:opacity .5s,transform .5s}
 .order.out{opacity:0;transform:translateY(-6px)}
+.fold{pointer-events:auto;flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--mute);cursor:pointer;display:grid;place-items:center;padding:0}
+.fold::before{content:'';width:8px;height:8px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:translateY(2px) rotate(45deg)}
+.order.folded .fold::before{transform:translateY(-2px) rotate(225deg)}
+.order.folded #memory{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
+.order.folded .tip{display:none}
 #who{font-size:13px;color:var(--accent)}
 #memory{font:500 17px/1.75 "Shippori Mincho",serif;margin:2px 0 0;min-height:3.5em}
 #shelf{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;gap:7px}
@@ -132,9 +137,9 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
       <button class="ib" id="sndBtn" aria-label="音の切り替え">音</button>
     </div>
     <div class="order" id="order" tabindex="0">
-      <div class="ohead"><span class="ava" id="ava"></span><span id="who">&nbsp;</span><span id="night"></span></div>
+      <div class="ohead"><span class="ava" id="ava"></span><span id="who">&nbsp;</span><span id="night"></span><button class="fold" id="fold" aria-label="お話を畳む" aria-expanded="true"></button></div>
       <p id="memory"></p>
-      <p id="tip" class="tip" hidden>マスターより：話に出てくる気分に合う味を、ベース・香り・飾りから一つずつ。外れても、何がちがったかは教えてもらえます。</p>
+      <p id="tip" class="tip" hidden>マスターより：気分に合う味を一つずつ。外れても理由は聞けます。</p>
     </div>
   </div>
   <div id="shelf">
@@ -676,6 +681,7 @@ function clearGlass(){sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomp
 $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
 $('hintBtn').onclick=()=>{if(S.active)say(S.queue[S.idx].text);};
 $('order').onclick=()=>finishSay();
+$('fold').onclick=e=>{e.stopPropagation();const f=$('order').classList.toggle('folded');$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');};
 
 /* カメラ操作 */
 let drag=null;
