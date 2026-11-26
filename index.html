@@ -57,6 +57,18 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #gazeHint.on{opacity:.8}
 #finale{position:fixed;inset:0;z-index:8;background:#000;opacity:0;transition:opacity 1.8s ease;pointer-events:none;overflow:hidden}
 #finale.on{opacity:1;pointer-events:auto}
+#react{position:fixed;inset:0;z-index:7;display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .7s ease;cursor:pointer}
+#react.on{opacity:1;pointer-events:auto}
+#react .rbg{position:absolute;inset:-40px;background:#05070f center/cover no-repeat;filter:blur(18px) brightness(.42) saturate(1.2);transform:scale(1.08)}
+#react .rbox{position:relative;width:min(420px,100%);text-align:center}
+#react .rfaces{position:relative;width:min(62vw,260px);aspect-ratio:4/5;margin:0 auto 14px;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.55);background:radial-gradient(circle at 50% 35%,#5c4466,#1a1430)}
+#react .rf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;transition:opacity 1.2s ease,transform 7s ease}
+#react .rf.b{opacity:0}#react.turn .rf.b{opacity:1}#react.on .rf{transform:scale(1.05)}
+#react .rwho{font-size:13px;color:var(--accent);margin:0 0 6px}
+#react .rline{font:500 18px/1.85 "Shippori Mincho",serif;min-height:3.7em;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+#react .rhint{font-size:12px;color:var(--mute);opacity:0;transition:opacity .6s;margin:14px 0 0}
+#react.done .rhint{opacity:1}
+@media (max-height:640px){#react .rfaces{width:min(46vw,190px)}#react .rline{font-size:16px}}
 #finale img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1);transition:transform 12s cubic-bezier(.2,.6,.3,1)}
 #finale.on img{transform:scale(1)}
 #finale .cap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);text-align:center;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.6);opacity:0;transition:opacity 1.6s ease 1.8s;padding:0 24px}
@@ -158,10 +170,11 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
   <div class="card">
     <h2 class="big">記憶のバー</h2>
     <p class="lead" style="margin-top:0">グラスに映る、あの日の景色</p><p class="lead">いらっしゃいませ。<br>ここは、もう一度見たい景色を<br>一杯にしてお出しする店です。</p>
-    <p class="note">お客さんの話から気分を読み取って、<b>ベース・香り・飾り</b>をひとつずつ選んでください。注ぐたびに、グラスの中に景色が浮かびます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
+    <p class="note">お客さんの話から<b>あの日の気持ち</b>を読み取って、一杯を作ってください。<b>ベース</b>はその時の気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな一日だったか。注ぐたびに、グラスの中に景色が浮かびます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
     <div class="cardacts"><button class="btn pri" id="openBtn">開店する</button></div>
   </div>
 </div>
+<div id="react" aria-live="polite"><div class="rbg"></div><div class="rbox"><div class="rfaces"><img class="rf a" alt=""><img class="rf b" alt=""></div><p class="rwho"></p><p class="rline"></p><p class="rhint">タップで続ける</p></div></div>
 <div class="modal" id="result" hidden><div class="card" id="resultCard"></div></div>
 <div class="modal" id="book" hidden><div class="card" id="bookCard"></div></div>
 <div id="err">3D表示を読み込めませんでした。通信状況を確認して再読み込みしてください。</div>
@@ -183,48 +196,50 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 
 /* ---------- データ ---------- */
 const ING={
- sky:[{k:'day',n:'青空ソーダ',e:'昼',t:'爽やか',c:'#6fb6ff'},{k:'dusk',n:'夕焼けジン',e:'夕方',t:'ほろ苦い',c:'#ff9a4d'},{k:'night',n:'月夜ブルー',e:'夜',t:'静か',c:'#6a7ff0'}],
- season:[{k:'spring',n:'桜シロップ',e:'春',t:'甘い',c:'#ff9cc6'},{k:'summer',n:'ラムネ',e:'夏',t:'弾ける',c:'#8fe3ff'},{k:'autumn',n:'もみじ酒',e:'秋',t:'渋い',c:'#ff7034'},{k:'winter',n:'雪見ミルク',e:'冬',t:'やわらか',c:'#e3ecff'}],
- land:[{k:'pole',n:'レモンピール',e:'電柱',t:'すっきり',c:'#ffd23a'},{k:'torii',n:'チェリー',e:'鳥居',t:'華やか',c:'#e8344a'},{k:'rail',n:'オリーブ',e:'踏切',t:'きりっと',c:'#9cc040'}]
+ sky:[{k:'day',n:'青空ソーダ',e:'昼',t:'晴れやか',c:'#6fb6ff'},{k:'dusk',n:'夕焼けジン',e:'夕方',t:'ほろ苦い',c:'#ff9a4d'},{k:'night',n:'月夜ブルー',e:'夜',t:'しんみり',c:'#6a7ff0'}],
+ season:[{k:'spring',n:'桜シロップ',e:'春',t:'はじまり',c:'#ff9cc6'},{k:'summer',n:'ラムネ',e:'夏',t:'高鳴り',c:'#8fe3ff'},{k:'autumn',n:'もみじ酒',e:'秋',t:'名残',c:'#ff7034'},{k:'winter',n:'雪見ミルク',e:'冬',t:'ぬくもり',c:'#e3ecff'}],
+ land:[{k:'pole',n:'レモンピール',e:'電柱',t:'ふだんの日',c:'#ffd23a'},{k:'torii',n:'チェリー',e:'鳥居',t:'特別な日',c:'#e8344a'},{k:'rail',n:'オリーブ',e:'踏切',t:'分かれ道',c:'#9cc040'}]
 };
 const SHORT={day:'昼',dusk:'夕',night:'夜',spring:'春',summer:'夏',autumn:'秋',winter:'冬',pole:'電柱',torii:'鳥居',rail:'踏切'};
 const LAB={sky:'ベース',season:'香り',land:'飾り',fin:'仕上げ'};
 const SKYW={day:'青空',dusk:'夕焼け',night:'月夜'},SEAW={spring:'桜',summer:'入道雲',autumn:'紅葉',winter:'雪'},LANDW={pole:'電線',torii:'鳥居',rail:'踏切'};
 const ORDERS=[
- {who:'仕事帰りの女性',text:'中学最後の夏、部活をやめた日の帰り道なんです。蝉の声がやけにうるさくて、泣きそうなのをごまかしながら、電線ごしに沈んでいく夕日を見てました。……ほろ苦い一日でした。',sky:'dusk',season:'summer',land:'pole',thanks:'……ああ、この空です。あの日の私に、よく頑張ったねって言えそう。',talk:['どうして、やめたんですか','膝を壊したんです。今は、走り回るのが仕事みたいな毎日ですけどね。']},
- {who:'大学生',text:'上京する前の晩、祖母と近所の神社まで歩いたんです。月が明るくて、夜桜が静かに散っていて。祖母は「行っておいで」って、それだけ言ってくれました。',sky:'night',season:'spring',land:'torii',thanks:'……おばあちゃん、元気かな。今度の春休み、帰ります。',talk:['今も、お手紙を？','はい。字が少しずつ震えてきてて。だから、早く帰らなきゃって。']},
- {who:'通勤中の会社員',text:'入社一年目の冬の朝、踏切の前で白い息を吐きながら、辞めようか迷ってたんです。カンカンという音が鳴りやむと、空がやけに青くて。……もう一年だけ、きりっとやってみようと思えた朝でした。',sky:'day',season:'winter',land:'rail',thanks:'あの朝の空だ。……あれから、もう十年になります。',talk:['あのとき、辞めなくてよかったですか','どうでしょう。でも、あの踏切の向こうで、今の妻と出会ったので。']},
- {who:'配達員',text:'親父の形見のトラックで、初めてひとりで配達に出た日です。昼休みに見上げたら、電線にカラスが並んでいて、足元では落ち葉がカサカサ鳴ってました。空が高くて、すっきり晴れてたな。',sky:'day',season:'autumn',land:'pole',thanks:'親父も、この空を見ながら走ってたんだろうな。',talk:['そのトラック、今も？','もう動かないんです。でも、どうしても手放せなくて。']},
- {who:'高校の先生',text:'自分の卒業式の日、校門を出て線路を渡ったんです。花びらが風に舞って、日差しがあたたかくて。遮断機が上がったとき、ここから先は自分で歩くんだ、と思いました。',sky:'day',season:'spring',land:'rail',thanks:'……あの日、先生になろうと決めたんです。',talk:['先生になって、何年ですか','今年で十五年です。この春、初めて受け持ったクラスを送り出します。']},
- {who:'出張帰りの男性',text:'子どもの頃、毎年行っていた地元の夏祭りです。屋台の灯りと太鼓の音で、夜の境内だけが華やかで。父の肩車で、朱色の鳥居をくぐったんです。',sky:'night',season:'summer',land:'torii',thanks:'太鼓の音が聞こえる気がします。……父の肩、広かったな。',talk:['最近は、帰られてますか','いえ、もう何年も。今年は、息子を肩車してやろうかな。']},
- {who:'ひとり客',text:'失恋した帰りに、なんとなく神社に寄り道したんです。参道が赤や黄色の葉でいっぱいで、夕日に照らされて。ひとりなのに景色だけはやけに華やかで、少し笑っちゃいました。',sky:'dusk',season:'autumn',land:'torii',thanks:'……あの日、ちゃんと泣いておいてよかったな。',talk:['何か、お願いごとを？','したんですけど、忘れちゃいました。たぶん、もう叶ってるんだと思います。']},
- {who:'終電を逃した青年',text:'上京して最初の冬、終電を逃して二時間歩いたんです。誰もいない夜道で、息が白くて、街灯から街灯へ、電線をたどるみたいに。……すごく静かで、なぜか泣けました。',sky:'night',season:'winter',land:'pole',thanks:'寂しかったけど、あの夜があったから、ここにいられるんだと思います。',talk:['今は、寂しくないですか','……まだ少し。でも、こうして話せる場所ができたので。']},
- {who:'文庫本を持つ女性',text:'高校の帰り道、好きだった人とはいつも踏切で別れてたんです。遮断機が下りるまでの短い時間だけ話せて。足元で落ち葉が鳴って、夕日がまぶしくて。……告白は、できずじまいでした。',sky:'dusk',season:'autumn',land:'rail',thanks:'……そう、この色。カンカンという音まで思い出しました。',talk:['その人とは、それきり？','先月、同窓会で会ったんです。向こうも、同じ踏切の話をしてくれて。']},
- {who:'自転車乗り',text:'中学の夏休み、親友と自転車で海を目指したんです。真昼の入道雲に向かってペダルをこいで、踏切で止まるたびにラムネを飲んで。結局、海には着かなかったんですけどね。',sky:'day',season:'summer',land:'rail',thanks:'この雲、あの日と同じだ。……あいつにも見せてやりたいな。',talk:['その親友さんとは？','今は海外にいます。帰ってきたら、今度こそ海まで行こうって約束してて。']},
- {who:'着物の女性',text:'娘の成人式の帰りに、ふたりで神社にお参りしたんです。境内に雪が残っていて、それが夕日で赤く染まって。振袖の娘が、知らない人みたいにきれいで。',sky:'dusk',season:'winter',land:'torii',thanks:'……あの子、この景色を覚えているかしら。',talk:['お嬢さんは、今は？','春にお嫁に行くんです。だから、もう一度見ておきたくて。']},
- {who:'近所のおじさん',text:'若い頃、会社をクビになった晩でね。友達が何も聞かずに、夜道を遠回りして付き合ってくれた。街灯の下で桜の花びらが光ってて……静かに励まされた気がしたんだ。',sky:'night',season:'spring',land:'pole',thanks:'あいつ、何も言わなかったんだよな。それが一番効いた。',talk:['そのご友人とは、今も？','ああ。今夜もこのあと会うんだ。今度は俺が、何も聞かずに付き合う番でね。']},
- {who:'家族連れの父親',text:'長男が生まれた年の初詣です。抱っこひもの中で眠る息子と、雪の残る境内を歩いて。冬の空がよく晴れていて、鳥居の朱色が晴れ着みたいに華やかに見えました。',sky:'day',season:'winter',land:'torii',thanks:'……あの子、もう中学生なんですよ。',talk:['今年も、ご家族で？','ええ。今年は、あいつのほうが先に歩いていくんです。']},
- {who:'詩を書く人',text:'母が入院していた秋、病院の帰りに踏切で立ち止まったんです。月が出ていて、虫の声と遮断機の音が、静かな夜に重なっていました。あの音で、もう一度背筋を伸ばせたんです。',sky:'night',season:'autumn',land:'rail',thanks:'……あの夜のこと、やっと詩にできそうです。',talk:['お母さまは、今は？','元気です。退院した日に、あの踏切を一緒に渡りました。']}
+ {who:'仕事帰りの女性',text:'中学最後の年、部活をやめた日の帰り道なんです。いつもと同じ道なのに、心臓がずっとどきどきうるさくて。泣きそうなのをごまかしながら歩きました。悔しくて、でも少しだけ肩の荷が下りたような……そんな一日でした。',sky:'dusk',season:'summer',land:'pole',thanks:'……ああ、この空です。あの日の私に、よく頑張ったねって言えそう。',talk:['どうして、やめたんですか','膝を壊したんです。今は、走り回るのが仕事みたいな毎日ですけどね。']},
+ {who:'大学生',text:'上京する前の日、祖母とお参りに行ったんです。家で過ごす最後の日で、ふたりとも口数が少なくて、しんとしてて。祖母は「行っておいで」って、それだけ。明日から始まるんだって、そっと背中を押された気がしました。',sky:'night',season:'spring',land:'torii',thanks:'……おばあちゃん、元気かな。今度の春休み、帰ります。',talk:['今も、お手紙を？','はい。字が少しずつ震えてきてて。だから、早く帰らなきゃって。']},
+ {who:'通勤中の会社員',text:'入社一年目のころ、出勤の途中で、辞めようか本気で迷ってたんです。ここで引き返すか、進むか。かじかんだ手の中で、缶コーヒーだけがあったかくて。……顔を上げたら、なんだか急に吹っ切れたんです。もう一年だけやってみようって。',sky:'day',season:'winter',land:'rail',thanks:'あの朝の空だ。……あれから、もう十年になります。',talk:['あのとき、辞めなくてよかったですか','どうでしょう。でも、あの踏切の向こうで、今の妻と出会ったので。']},
+ {who:'配達員',text:'親父の形見のトラックで、初めてひとりで配達に出た日です。いつものルートを、いつもどおりに走っただけなんですけど。助手席が空いてるのが、まだ少し寂しくて。それでも、胸を張って走れた。誇らしかったな。',sky:'day',season:'autumn',land:'pole',thanks:'親父も、この空を見ながら走ってたんだろうな。',talk:['そのトラック、今も？','もう動かないんです。でも、どうしても手放せなくて。']},
+ {who:'高校の先生',text:'自分の卒業式の日です。校門を出て、友達とは別々の方向へ帰ることになって。ここから先は、自分で歩くんだって思いました。不思議と涙は出なくて、胸の中がすうっと晴れていくようでした。',sky:'day',season:'spring',land:'rail',thanks:'……あの日、先生になろうと決めたんです。',talk:['先生になって、何年ですか','今年で十五年です。この春、初めて受け持ったクラスを送り出します。']},
+ {who:'出張帰りの男性',text:'子どもの頃、年に一度だけの楽しみがあったんです。父の肩車で、人混みの上から見る景色。胸がどきどきして、眠いのに目をこすってました。……今思うと、あのときの父の背中、少しだけ寂しそうだったな。',sky:'night',season:'summer',land:'torii',thanks:'太鼓の音が聞こえる気がします。……父の肩、広かったな。',talk:['最近は、帰られてますか','いえ、もう何年も。今年は、息子を肩車してやろうかな。']},
+ {who:'ひとり客',text:'失恋した日です。その人と前から約束していた、年に一度のお参りの日で。ひとりで行っても景色だけはやけにきれいで、少し笑っちゃいました。もう戻らないんだなって、思い出をひとつずつ置いていくみたいに歩きました。',sky:'dusk',season:'autumn',land:'torii',thanks:'……あの日、ちゃんと泣いておいてよかったな。',talk:['何か、お願いごとを？','したんですけど、忘れちゃいました。たぶん、もう叶ってるんだと思います。']},
+ {who:'終電を逃した青年',text:'上京して最初の年、終電を逃して二時間歩いたんです。誰もいない、ありふれた住宅街を。しんと静かで、なぜか泣けて。……途中で寄ったコンビニの肉まんが、びっくりするくらい、あったかかったんです。',sky:'night',season:'winter',land:'pole',thanks:'寂しかったけど、あの夜があったから、ここにいられるんだと思います。',talk:['今は、寂しくないですか','……まだ少し。でも、こうして話せる場所ができたので。']},
+ {who:'文庫本を持つ女性',text:'高校の帰り道、好きだった人とは、いつも同じ場所で右と左に別れてたんです。そこまでの短い時間だけ話せて。もう少し一緒にいたいのに、毎日あっという間で。……告白は、できずじまいでした。',sky:'dusk',season:'autumn',land:'rail',thanks:'……そう、この色。カンカンという音まで思い出しました。',talk:['その人とは、それきり？','先月、同窓会で会ったんです。向こうも、同じ踏切の話をしてくれて。']},
+ {who:'自転車乗り',text:'中学のころ、親友と自転車で海を目指したんです。わくわくして、ペダルが止まらなくて。途中、海へ行く道と家へ帰る道の分かれ目で、ふたりで顔を見合わせて……結局、海には着かなかったんですけどね。気持ちいいくらい、すがすがしい一日でした。',sky:'day',season:'summer',land:'rail',thanks:'この雲、あの日と同じだ。……あいつにも見せてやりたいな。',talk:['その親友さんとは？','今は海外にいます。帰ってきたら、今度こそ海まで行こうって約束してて。']},
+ {who:'着物の女性',text:'娘の成人式の帰りに、ふたりでお参りしたんです。手をつないだら、娘の手がまだあったかくて。振袖の娘が知らない人みたいにきれいで……嬉しいのに、少しだけ寂しかったんです。',sky:'dusk',season:'winter',land:'torii',thanks:'……あの子、この景色を覚えているかしら。',talk:['お嬢さんは、今は？','春にお嫁に行くんです。だから、もう一度見ておきたくて。']},
+ {who:'近所のおじさん',text:'若い頃、会社をクビになった日でね。友達が何も聞かずに、いつもの道を遠回りして付き合ってくれた。ふたりとも黙ったままで……でも別れ際に、よし、ここからやり直すかって思えたんだ。',sky:'night',season:'spring',land:'pole',thanks:'あいつ、何も言わなかったんだよな。それが一番効いた。',talk:['そのご友人とは、今も？','ああ。今夜もこのあと会うんだ。今度は俺が、何も聞かずに付き合う番でね。']},
+ {who:'家族連れの父親',text:'長男が生まれた年の初詣です。抱っこひもの中で眠る息子が、湯たんぽみたいにあったかくて。気持ちまで晴れ渡るようで……ああ、父親になったんだなって。',sky:'day',season:'winter',land:'torii',thanks:'……あの子、もう中学生なんですよ。',talk:['今年も、ご家族で？','ええ。今年は、あいつのほうが先に歩いていくんです。']},
+ {who:'詩を書く人',text:'母が入院していたころ、病院の帰りに立ち止まったんです。このまま帰るか、もう一度病室に戻るか。しんとした中で、母と過ごした時間ばかり思い出して。……あのとき、もう一度背筋を伸ばして、前に進むことにしたんです。',sky:'night',season:'autumn',land:'rail',thanks:'……あの夜のこと、やっと詩にできそうです。',talk:['お母さまは、今は？','元気です。退院した日に、あの踏切を一緒に渡りました。']}
 ];
 const REGS=[
  {id:'minato',who:'常連のミナトさん',look:'bob',rim:'#ffd2a8',from:1,reward:'rain',eps:[
-  {text:'この町に越してきた日です。段ボールの片づけに疲れて外に出たら、花びらが一枚、肩に乗ってきて。電線の向こうの空が赤くて……知らない町なのに、少しだけほっとしたんです。',sky:'dusk',season:'spring',land:'pole',thanks:'そう、この色。……ここに来て、よかったのかもしれません。',talk:['この町には、もう慣れましたか','まだ全然。知り合いもいなくて。だから、ここに来ちゃいました。']},
-  {text:'近所の神社の夏祭りに、ひとりで行ったんです。屋台の灯りと太鼓の音で、夜の境内だけが華やかで。そしたら隣の部屋の人が「あ、お隣さん」って声をかけてくれて。',sky:'night',season:'summer',land:'torii',thanks:'あの晩、初めてこの町の人になれた気がします。',talk:['いい出会いでしたね','はい。今度、その人の家で流しそうめんをするんです。']},
-  {text:'会社の帰り、同僚と踏切の前で立ち話をしたんです。遮断機が上がっても、なんとなく二人とも渡らなくて。落ち葉が足元で鳴って、夕日が沈むまで黙って見ていました。',sky:'dusk',season:'autumn',land:'rail',thanks:'あの時間、なんだか長く感じたんです。いい意味で。',talk:['黙って見ていられる相手、いいですね','……そうなんです。今度、ここに連れてきてもいいですか。']},
-  {text:'この町で初めて雪が降った朝。窓を開けたら、電線にも屋根にも白いものが積もっていて、空は雲ひとつない青で。思わず、あの同僚に写真を送っちゃいました。',sky:'day',season:'winter',land:'pole',thanks:'まぶしかったな、あの朝。……返事、すぐ来たんですよ。',talk:['もうすぐ一年ですね','早いですね。最初の夜にここで飲んだ一杯、まだ覚えてますよ。']},
-  {text:'ここに来て、ちょうど一年です。昼に雨が上がって、あの同僚と神社の桜を見に行ったんです。濡れた花びらが日差しで光っていて、鳥居の朱色がびっくりするくらい鮮やかで。',sky:'day',season:'spring',land:'torii',thanks:'一年前より、ちゃんと「私の町の景色」に見えます。ありがとう、マスター。',talk:['これからも、いつでもどうぞ','はい。次は、ふたりで来ますね。……雨上がりの日に。']}]},
+  {text:'この町に越してきた日です。段ボールの山に疲れて、ふらっと外へ出たんです。知らない町の、なんでもない路地。心細くて、胸がきゅっとして……でも、ここから始まるんだなって、少しだけほっとしたんです。',sky:'dusk',season:'spring',land:'pole',thanks:'そう、この色。……ここに来て、よかったのかもしれません。',talk:['この町には、もう慣れましたか','まだ全然。知り合いもいなくて。だから、ここに来ちゃいました。']},
+  {text:'近所の、年に一度のお祭りにひとりで行ったんです。にぎやかな音に胸が弾んで、でもひとりなのが少し心細くて。そしたら隣の部屋の人が「あ、お隣さん」って声をかけてくれて。帰り道は、静かでやさしい気持ちでした。',sky:'night',season:'summer',land:'torii',thanks:'あの晩、初めてこの町の人になれた気がします。',talk:['いい出会いでしたね','はい。今度、その人の家で流しそうめんをするんです。']},
+  {text:'会社の帰り、同僚と、いつも右と左に別れる場所で立ち話をしたんです。じゃあね、って言ってからも、なんとなく二人とも動かなくて。帰りたくないような、少し切ないような。黙ったまま、空の色が変わるまで見ていました。',sky:'dusk',season:'autumn',land:'rail',thanks:'あの時間、なんだか長く感じたんです。いい意味で。',talk:['黙って見ていられる相手、いいですね','……そうなんです。今度、ここに連れてきてもいいですか。']},
+  {text:'この町で初めての、すごく寒い日。いつもの道が、まぶしいくらい真っ白で。思わず、あの同僚に写真を送っちゃいました。すぐ返事が来て、かじかんだ手の中で、スマホがあったかく感じたんです。',sky:'day',season:'winter',land:'pole',thanks:'まぶしかったな、あの朝。……返事、すぐ来たんですよ。',talk:['もうすぐ一年ですね','早いですね。最初の夜にここで飲んだ一杯、まだ覚えてますよ。']},
+  {text:'ここに来て、ちょうど一年です。記念に、あの同僚とお参りに行ったんです。雨上がりで、何もかもきらきらして見えて。一年前の心細さが嘘みたいに、すっきり晴れた気持ちで……ここから新しく始まる気がしました。',sky:'day',season:'spring',land:'torii',thanks:'一年前より、ちゃんと「私の町の景色」に見えます。ありがとう、マスター。',talk:['これからも、いつでもどうぞ','はい。次は、ふたりで来ますね。……雨上がりの日に。']}]},
  {id:'shino',who:'シノハラさん',look:'short',rim:'#c9d6ff',from:2,reward:'fire',eps:[
-  {text:'毎朝、白い息を吐きながら、踏切の向こうで手を振る妻に見送られて出勤していたんだ。カンカンという音がやむと、空がやけに青くてね。……あれが当たり前だと思っていた。',sky:'day',season:'winter',land:'rail',thanks:'ああ……手を振る妻が見えた気がするよ。',talk:['奥さまは、毎朝見送りを？','四十年、一日も欠かさずね。去年の春に、先に逝ってしまったが。']},
-  {text:'妻と出会ったのは、夏祭りの晩の境内だった。太鼓が鳴っていて、夜空に花火が上がるたびに、浴衣の妻の横顔が照らされてね。金魚すくいが、ひどく下手な人だった。',sky:'night',season:'summer',land:'torii',thanks:'あの晩の音だ。……妻も、この花火を見ていたよ。',talk:['どんな方だったんですか','よく笑う人だった。私が不機嫌でも、つられて笑ってしまうくらいにね。']},
-  {text:'最後に二人で歩いた帰り道だ。夕日が長い影を作って、電線にカラスが並んでいた。足元で落ち葉が鳴るのを、妻は「秋の音ね」と言ってね。……それが、最後の散歩になった。',sky:'dusk',season:'autumn',land:'pole',thanks:'いい景色を見せてもらった。……妻にも、ちゃんと話しておくよ。',talk:['また、いつでもいらしてください','ああ。今度は、妻の好きだった酒を一杯、頼みに来るよ。']}]},
+  {text:'出勤のたびに、駅へ向かう道と家へ戻る道の分かれ目で、妻が手を振って見送ってくれてね。寒い日ほど、あの姿があたたかかった。胸がすっと晴れる思いで出かけられたよ。……あれが当たり前だと思っていた。',sky:'day',season:'winter',land:'rail',thanks:'ああ……手を振る妻が見えた気がするよ。',talk:['奥さまは、毎朝見送りを？','四十年、一日も欠かさずね。去年の春に、先に逝ってしまったが。']},
+  {text:'妻と出会ったのは、年に一度のお祭りの日だった。音が鳴るたびに胸が躍ってね、浴衣の妻の横顔ばかり見ていた。……こうして思い出すと、静かに沁みるよ。金魚すくいが、ひどく下手な人だった。',sky:'night',season:'summer',land:'torii',thanks:'あの晩の音だ。……妻も、この花火を見ていたよ。',talk:['どんな方だったんですか','よく笑う人だった。私が不機嫌でも、つられて笑ってしまうくらいにね。']},
+  {text:'最後に二人で歩いた、いつもの散歩道だ。妻は「この季節の音が好き」と言って、ゆっくり歩いてね。楽しかったのに、胸が少し苦くて。もっと一緒に歩いていたかった。……それが、最後の散歩になった。',sky:'dusk',season:'autumn',land:'pole',thanks:'いい景色を見せてもらった。……妻にも、ちゃんと話しておくよ。',talk:['また、いつでもいらしてください','ああ。今度は、妻の好きだった酒を一杯、頼みに来るよ。']}]},
  {id:'yui',who:'看護師のユイさん',look:'bun',rim:'#ffc9b0',from:3,reward:'star',eps:[
-  {text:'夜勤明けの帰り道です。まぶしいくらいの昼の光の中で赤い葉っぱが降ってきて、電線の上でカラスが鳴いていて。……みんなが起きている時間に帰るのって、ちょっと寂しいんですよね。',sky:'day',season:'autumn',land:'pole',thanks:'そう、この感じ。夜勤明けの空って、ちょっと変な色なんです。',talk:['お疲れさまです','ありがとうございます。今日は、よく眠れそう。']},
-  {text:'担当の患者さんを見送った日、同期と夜道を歩いて帰ったんです。二人とも何も言わなくて。街灯の下で、桜の花びらが静かに落ちてきて……同期が、黙って肩を貸してくれました。',sky:'night',season:'spring',land:'pole',thanks:'……あの子がいなかったら、たぶん辞めてました。',talk:['いい同期ですね','はい。今度、休みを合わせて、実家に帰ってみようかって話してるんです。']},
-  {text:'久しぶりに実家へ帰った夏の夜です。駅前の踏切で遮断機が上がるのを待っていたら、空に流れ星が見えて。蝉の声の向こうで、母が迎えに来てくれていました。',sky:'night',season:'summer',land:'rail',thanks:'……お願いごと、ちゃんとできました。',talk:['どんなお願いを？','秘密です。でも、また明日から頑張れそうです。']}]}
+  {text:'夜勤明けの帰り道です。いつもの道なのに、みんなが起きている時間に帰るのって変な感じで。一晩やりきった、すかっとした気持ちと……過ぎていく一日を、ひとりで見送るような寂しさと。',sky:'day',season:'autumn',land:'pole',thanks:'そう、この感じ。夜勤明けの空って、ちょっと変な色なんです。',talk:['お疲れさまです','ありがとうございます。今日は、よく眠れそう。']},
+  {text:'担当の患者さんが亡くなった日、同期といつもの道を歩いて帰ったんです。二人とも何も言わなくて。しんとした中で、同期が黙って肩を貸してくれて。……あの日から、本当の意味で看護師が始まった気がします。',sky:'night',season:'spring',land:'pole',thanks:'……あの子がいなかったら、たぶん辞めてました。',talk:['いい同期ですね','はい。今度、休みを合わせて、実家に帰ってみようかって話してるんです。']},
+  {text:'久しぶりに実家へ帰った日です。駅を出て、実家へ続く道と、昔よく遊んだ道の分かれ目で、ちょっと立ち止まって。帰ってきたんだって胸がどきどきして……静かな中で、母が迎えに来てくれていました。',sky:'night',season:'summer',land:'rail',thanks:'……お願いごと、ちゃんとできました。',talk:['どんなお願いを？','秘密です。でも、また明日から頑張れそうです。']}]}
 ];
 const FIN=[{k:'rain',n:'雨上がりトニック',e:'雨',c:'#9fb6d0'},{k:'fire',n:'花火リキュール',e:'花火',c:'#ff6a8a'},{k:'star',n:'流れ星シュガー',e:'流れ星',c:'#fff1a8'}];
 const FINW={rain:'雨',fire:'花火',star:'流れ星'};
-const PART={sky:'空の色',season:'季節',land:'あの場所の目印'},PARTS={sky:'空の色',season:'季節',land:'目印'};
+const PART={sky:'空の色',season:'季節',land:'あの場所の目印'},PARTS={sky:'ベース',season:'香り',land:'飾り'};
+/* 外れた時に、お客さんが語る「あの日の気持ち」 */
+const FEELP={day:'晴れやかだった',dusk:'ほろ苦かった',night:'しんみりしていた',spring:'何かが始まる感じがしていた',summer:'胸が高鳴っていた',autumn:'名残惜しかった',winter:'あたたかかった',pole:'なんでもない日だった',torii:'特別な日だった',rail:'分かれ道に立っていた'};
 
 /* ---------- 描画の土台 ---------- */
 const canvas=$('c');
@@ -782,7 +797,9 @@ function setFace(o){const u=faceUrl(o,1);$('ava').style.backgroundImage=`url(${u
  if(FTEX[u])use(FTEX[u]);else new THREE.TextureLoader().load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;FTEX[u]=t;if(S.queue[S.idx]===o)use(t);});}
 function showCustomer(){const o=S.queue[S.idx];sfxStep=0;$('tip').hidden=!(S.night===1&&S.idx===0);moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;},350);$('night').textContent=`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`;drawRows();}
 const cname=(a,b,c,f)=>`${SEAW[b]}と${LANDW[c]}の${SKYW[a]}`+(f?`、${FINW[f]}`:'');
-function reply(o,m){const miss=['sky','season','land'].filter(k=>!m[k]);if(!miss.length)return o.thanks;if(o.reg)return (miss.length===1?`近い。……でも、${PART[miss[0]]}が少しちがったかな。`:'……少しだけ、あの日とはちがうみたいです。')+'また、話しに来てもいいですか。';if(miss.length===1)return `近い。……でも、${PART[miss[0]]}が少しちがったかな。それでも、懐かしい味がします。`;if(miss.length===2)return `${PART[miss[0]]}と${PART[miss[1]]}が、記憶とは少しちがうみたい。でも、やさしい味ですね。`;return '知らない景色だけど……なんだか、ほっとします。';}
+function reply(o,m){const miss=['sky','season','land'].filter(k=>!m[k]),P=miss.map(k=>FEELP[o[k]]);if(!miss.length)return o.thanks;
+ const t=miss.length===1?`近い……。でも、あの日はもう少し${P[0]}気がします。`:miss.length===2?`きれいですね。……でも、あの日はもっと${P[0]}し、${P[1]}気がするんです。`:`知らない景色……。あの日は${P[0]}し、${P[1]}し、それに${P[2]}んです。でも、これはこれで、ほっとします。`;
+ return o.reg?t+'また、話しに来てもいいですか。':t;}
 $('serveBtn').onclick=()=>{if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;S.active=false;$('serveBtn').disabled=true;setTimeout(startRecall,Math.max(0,readyAt-T)*1000+150);};
 const FINALE={minato:{pos:'63% 50%',cap:'一年後の、雨上がり。'},shino:{pos:'36% 50%',cap:'はじめて会った夜の、浴衣の後ろ姿。'},yui:{pos:'60% 50%',cap:'おかえり、と手を振る母。'}};
 function showFinale(o,then){const F=FINALE[o.reg],el=$('finale'),im=el.querySelector('img'),hint=el.querySelector('.hint');let ok=false,gone=false;const go=()=>{if(!ok||gone)return;gone=true;clearTimeout(auto);then();el.classList.remove('on');hint.classList.remove('on');el.onclick=null;setTimeout(()=>{im.removeAttribute('src');},2000);};
@@ -798,7 +815,14 @@ function doServe(){const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.seas
  const img=snap(),key=`${sel.sky}-${sel.season}-${sel.land}`,name=cname(sel.sky,sel.season,sel.land,sel.fin),isNew=!BOOK[key];
  if(isNew){BOOK[key]={img,name};saveBook();}[sel.sky,sel.season,sel.land].forEach(k=>{if(!S.known.includes(k))S.known.push(k);});saveSV();let story='';if(o.reg&&n===3){S.eps[o.reg]++;const r=REGS.find(x=>x.id===o.reg);if(S.eps[o.reg]>=r.eps.length){if(!S.unlocked.includes(r.reward))S.unlocked.push(r.reward);const f=FIN.find(x=>x.k===r.reward);story=`${r.who}の物語を見届けました。<br>新しいお酒「${f.n}」が棚に並びます`;}else story=`${r.who}の話が、次の夜に続きます`;saveSV();}else if(o.reg)story='★3つで、話の続きが聞けます';S.results.push({img,n,name,isNew});sClink();
  $('resultCard').innerHTML=`<div class="rhead"><img class="thumb" src="${img}" alt=""><img class="face" src="${faceUrl(o,n===3?0:n===2?1:2)}" alt="${esc(o.who)}"></div><h2>${esc(name)}</h2><div class="stars" aria-hidden="true">${'★'.repeat(n)}${'☆'.repeat(3-n)}</div><p class="mcount">記憶と ${n}/3 一致</p><div class="match">${['sky','season','land'].map(x=>`<span class="${m[x]?'ok':'ng'}">${PARTS[x]} ${m[x]?'○':'×'}</span>`).join('')}</div>${story?`<p class="story">${story}</p>`:''}<p class="reply">「${esc(reply(o,m))}」</p><p class="memo"><small>${esc(o.who)}の話</small>${esc(o.text)}</p>${isNew?'<span class="new">図鑑に新しく載りました</span>':''}<div class="talk" id="talk"></div><div class="cardacts">${o.talk?'<button class="btn" id="talkBtn">少し話す</button>':''}<button class="btn pri" id="nextBtn">${S.idx<4?'次のお客さん':'今夜を締めくくる'}</button></div>`;
- $('result').hidden=false;$('nextBtn').onclick=next;if($('talkBtn'))$('talkBtn').onclick=()=>{$('talkBtn').remove();playTalk(o.talk,o.who);};}
+ showReaction(o,n,img,reply(o,m),()=>{$('result').hidden=false;});$('nextBtn').onclick=next;if($('talkBtn'))$('talkBtn').onclick=()=>{$('talkBtn').remove();playTalk(o.talk,o.who);};}
+/* 提供した瞬間：グラスを覗いたお客さんの表情が変わり、あの日の気持ちを語る */
+function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector('.rf.a'),fb=el.querySelector('.rf.b'),ln=el.querySelector('.rline');
+ el.querySelector('.rbg').style.backgroundImage=`url(${img})`;fa.src=faceUrl(o,1);fb.src=faceUrl(o,n===3?0:2);el.querySelector('.rwho').textContent=o.who;ln.textContent='';el.classList.remove('turn','done');
+ let st=0,tm=null,closed=false;const type=()=>{st=1;let i=0;tm=setInterval(()=>{ln.textContent=line.slice(0,++i);if(i>=line.length){clearInterval(tm);tm=null;el.classList.add('done');st=2;}},45);};
+ const t1=setTimeout(()=>{el.classList.add('turn');if(n===3)sChime();},1200),t2=setTimeout(type,2100);
+ requestAnimationFrame(()=>el.classList.add('on'));
+ el.onclick=()=>{if(closed)return;if(st===0){clearTimeout(t1);clearTimeout(t2);el.classList.add('turn');type();return;}if(st===1){clearInterval(tm);ln.textContent=line;el.classList.add('done');st=2;return;}closed=true;el.onclick=null;el.classList.remove('on');setTimeout(then,450);};}
 function playTalk(lines,who){const box=$('talk');let i=0;const step=()=>{if(i>=lines.length)return;const isM=i%2===0,p=document.createElement('p'),sm=document.createElement('small'),sp=document.createElement('span');p.className=isM?'m':'';sm.textContent=isM?'マスター':who;p.append(sm,sp);box.append(p);const t=lines[i++];let j=0;const tm=setInterval(()=>{j++;sp.textContent='「'+t.slice(0,j)+(j>=t.length?'」':'');if(j>=t.length){clearInterval(tm);setTimeout(step,500);}},38);};step();}
 function next(){if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.idx++;if(S.idx>=S.queue.length)setTimeout(summary,700);else setTimeout(showCustomer,800);}
 function summary(){const tot=S.results.reduce((a,r)=>a+r.n,0),nw=S.results.filter(r=>r.isNew).length;
