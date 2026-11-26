@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>記憶のバー</title>
+<meta name="description" content="お客さんの思い出話から気持ちを読んで、一杯をつくる。グラスの中に、あの日の景色がにじみ出る小さなゲーム。">
+<meta name="theme-color" content="#0b1024">
+<meta property="og:type" content="website">
+<meta property="og:title" content="記憶のバー">
+<meta property="og:description" content="お客さんの思い出話から気持ちを読んで、一杯をつくる。グラスの中に、あの日の景色がにじみ出る小さなゲーム。">
+<meta property="og:url" content="https://jirisuke0121.github.io/kioku-bar/">
+<meta property="og:image" content="https://jirisuke0121.github.io/kioku-bar/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M12 14h40c0 13-9 22-20 22S12 27 12 14z' fill='%23ff9a4d'/%3E%3Cpath d='M30 36h4v16h-4z' fill='%23f6efe6'/%3E%3Cpath d='M20 54h24v4H20z' fill='%23f6efe6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -42,6 +53,16 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #shelf{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;gap:7px}
 .row{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:6px}
 .lab{white-space:nowrap;font:700 13px/1.2 "Shippori Mincho",serif;color:var(--mute);text-align:center}
+.lab.dk{background:none;border:0;padding:4px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:auto}
+.lab.dk i{font:700 10px/14px "Zen Kaku Gothic New",sans-serif;font-style:normal;width:14px;height:14px;border-radius:50%;border:1px solid var(--line);color:var(--mute)}
+.lab.dk.on{color:var(--accent)}.lab.dk.on i{border-color:var(--accent);color:var(--accent)}
+#shelf{position:relative}
+#dict{position:absolute;left:0;right:0;bottom:calc(100% + 8px);background:rgba(13,19,40,.95);border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:rise .25s ease}
+#dict h3{font:700 14px/1.4 "Shippori Mincho",serif;margin:0 0 8px;color:var(--accent)}
+#dict dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:baseline}
+#dict dt{font-weight:700;font-size:14px;white-space:nowrap}#dict dt i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+#dict dd{margin:0;font-size:13px;color:var(--mute);line-height:1.5}
+#guide{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);max-width:100%;width:max-content;background:rgba(13,19,40,.88);border:1px solid var(--accent);color:var(--ink);border-radius:20px;padding:6px 14px;font-size:13px;line-height:1.5;text-align:center;pointer-events:none;animation:rise .3s ease}
 .chips{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
 .chip{height:50px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;padding:0 2px;position:relative;transition:background .3s,border-color .3s,box-shadow .3s}
 .chip b{font-size:13px;font-weight:700;white-space:nowrap;line-height:1.25;letter-spacing:-.02em}
@@ -160,10 +181,10 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
     <div class="order" id="order" tabindex="0">
       <div class="ohead"><span class="ava" id="ava"></span><span id="who">&nbsp;</span><span id="night"></span><button class="fold" id="fold" aria-label="お話を畳む" aria-expanded="true"></button></div>
       <p id="memory"></p>
-      <p id="tip" class="tip" hidden>マスターより：気分に合う味を一つずつ。外れても理由は聞けます。</p>
+      <p id="tip" class="tip" hidden>マスターより：あの日の気持ちを、一つずつ。外れても理由は聞けます。</p>
     </div>
   </div>
-  <div id="shelf">
+  <div id="shelf"><div id="dict" hidden></div><div id="guide" hidden></div>
     <div id="rows"></div>
     <div class="acts">
       <button class="btn" id="resetBtn">作り直す</button>
@@ -179,8 +200,8 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
   <div class="card">
     <h2 class="big">記憶のバー</h2>
     <p class="lead" style="margin-top:0">グラスに映る、あの日の景色</p><p class="lead">いらっしゃいませ。<br>ここは、もう一度見たい景色を<br>一杯にしてお出しする店です。</p>
-    <p class="note">お客さんの話から<b>あの日の気持ち</b>を読み取って、一杯を作ってください。<b>ベース</b>はその時の気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな一日だったか。注ぐたびに、グラスの中に景色が浮かびます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
-    <div class="cardacts"><button class="btn pri" id="openBtn">開店する</button></div>
+    <p class="note">お客さんの話から<b>あの日の気持ち</b>を読み取って、一杯を作ってください。<b>ベース</b>はその時の気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな一日だったか。材料を一滴落とすたびに、グラスの中に景色がにじみ出ます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
+    <div class="cardacts"><button class="btn pri" id="openBtn" disabled>準備中…</button></div>
   </div>
 </div>
 <div id="react" aria-live="polite"><div class="rbg"></div><div class="rbox"><div class="rfaces"><img class="rf a" alt=""><img class="rf b" alt=""></div><p class="rwho"></p><p class="rline"></p><p class="rhint">タップで続ける</p></div></div>
@@ -232,7 +253,7 @@ const REGS=[
  {id:'minato',who:'常連のミナトさん',look:'bob',rim:'#ffd2a8',from:1,reward:'rain',eps:[
   {text:'この町に越してきた日です。段ボールの山に疲れて、ふらっと外へ出たんです。知らない町の、なんでもない路地。心細くて、胸がきゅっとして……でも、ここから始まるんだなって、少しだけほっとしたんです。',clue:['心細くて、胸がきゅっとして','ここから始まるんだな','なんでもない路地'],sky:'dusk',season:'spring',land:'pole',thanks:'そう、この色。……ここに来て、よかったのかもしれません。',talk:['この町には、もう慣れましたか','まだ全然。知り合いもいなくて。だから、ここに来ちゃいました。']},
   {text:'近所の、年に一度のお祭りにひとりで行ったんです。にぎやかな音に胸が弾んで、でもひとりなのが少し心細くて。そしたら隣の部屋の人が「あ、お隣さん」って声をかけてくれて。帰り道は、静かでやさしい気持ちでした。',clue:['静かでやさしい気持ち','にぎやかな音に胸が弾んで','年に一度のお祭り'],sky:'night',season:'summer',land:'torii',thanks:'あの晩、初めてこの町の人になれた気がします。',talk:['いい出会いでしたね','はい。今度、その人の家で流しそうめんをするんです。']},
-  {text:'会社の帰り、同僚と、いつも右と左に別れる場所で立ち話をしたんです。じゃあね、って言ってからも、なんとなく二人とも動かなくて。帰りたくないような、少し切ないような。黙ったまま、空の色が変わるまで見ていました。',clue:['少し切ないような','帰りたくないような','いつも右と左に別れる場所'],sky:'dusk',season:'autumn',land:'rail',thanks:'あの時間、なんだか長く感じたんです。いい意味で。',talk:['黙って見ていられる相手、いいですね','……そうなんです。今度、ここに連れてきてもいいですか。']},
+  {text:'会社の帰り、同僚と、いつも右と左に別れる場所で立ち話をしたんです。じゃあね、って言ってからも、なんとなく二人とも動かなくて。まだ帰りたくないような。楽しいのに、少し切ないような。黙ったまま、空の色が変わるまで見ていました。',clue:['楽しいのに、少し切ないような','まだ帰りたくないような','いつも右と左に別れる場所'],sky:'dusk',season:'autumn',land:'rail',thanks:'あの時間、なんだか長く感じたんです。いい意味で。',talk:['黙って見ていられる相手、いいですね','……そうなんです。今度、ここに連れてきてもいいですか。']},
   {text:'この町で初めての、すごく寒い日。いつもの道が、まぶしいくらい真っ白で。思わず、あの同僚に写真を送っちゃいました。すぐ返事が来て、かじかんだ手の中で、スマホがあったかく感じたんです。',clue:['まぶしいくらい真っ白で','スマホがあったかく感じた','いつもの道が'],sky:'day',season:'winter',land:'pole',thanks:'まぶしかったな、あの朝。……返事、すぐ来たんですよ。',talk:['もうすぐ一年ですね','早いですね。最初の夜にここで飲んだ一杯、まだ覚えてますよ。']},
   {text:'ここに来て、ちょうど一年です。記念に、あの同僚とお参りに行ったんです。雨上がりで、何もかもきらきらして見えて。一年前の心細さが嘘みたいに、すっきり晴れた気持ちで……ここから新しく始まる気がしました。',clue:['すっきり晴れた気持ち','ここから新しく始まる気がしました','記念に、あの同僚とお参りに行った'],sky:'day',season:'spring',land:'torii',thanks:'一年前より、ちゃんと「私の町の景色」に見えます。ありがとう、マスター。',talk:['これからも、いつでもどうぞ','はい。次は、ふたりで来ますね。……雨上がりの日に。']}]},
  {id:'shino',who:'シノハラさん',look:'short',rim:'#c9d6ff',from:2,reward:'fire',eps:[
@@ -737,9 +758,19 @@ function moodStop(fade=1){if(!MOOD.out||!AC){MOOD.on=false;return;}clearInterval
  setTimeout(()=>{ns.forEach(n=>{if(n)try{n.src.stop();n.lfo&&n.lfo.stop();}catch(e){}});try{o.disconnect();}catch(e){}},fade*1000+400);MOOD.out=null;MOOD.amb={key:null,n:null};MOOD.fin={key:null,n:null};}
 
 /* ---------- 操作 ---------- */
-function drawRows(){const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row"><div class="lab">${LAB[slot]}</div><div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
- $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);}
-$('rows').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||T<busyUntil||!S.active)return;const s=b.dataset.s,k=b.dataset.k;if(s==='fin'&&sel.fin===k){sel.fin=null;D.fin=null;drawRows();return;}if(sel[s]===k)return;sel[s]=k;drawRows();if(!$('order').classList.contains('folded')){finishSay();setFold(true);}act(s,k);});
+/* 気持ちの辞書（段の名前をタップ） */
+const FEELD={day:'迷いが晴れて、前を向けた気持ち',dusk:'嬉しさや悔しさに、少しの寂しさが混ざった気持ち',night:'静かに、ひとりで噛みしめる気持ち',spring:'ここから何かが始まる予感',summer:'胸がどきどき、わくわくする',autumn:'過ぎていくものを惜しむ気持ち',winter:'誰かや何かの、あたたかさ',pole:'いつもの道、なんでもない日',torii:'年に一度、記念の日、お参り',rail:'どちらへ進むか、別れの場所'};
+const DICTH={sky:'ベース：その時の気持ちの色',season:'香り：胸の内の動き',land:'飾り：どんな一日だったか'};
+let dictOpen=null;
+function showDict(slot){dictOpen=dictOpen===slot?null:slot;const el=$('dict');document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));
+ if(!dictOpen){el.hidden=true;guide();return;}el.innerHTML=`<h3>${DICTH[slot]}</h3><dl>${ING[slot].map(i=>`<dt><i style="background:${i.c}"></i>${esc(i.t)}</dt><dd>${esc(FEELD[i.k])}</dd>`).join('')}</dl>`;el.hidden=false;guide();}
+/* 最初の一杯だけの案内 */
+function guide(){const el=$('guide');const on=S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
+ const t=!sel.sky?'まずはベース。あの日の気持ちは、どんな色？':!sel.season?'次は香り。胸の内は、どう動いていた？':!sel.land?'最後に飾り。どんな一日だった？':'「提供する」で、一杯をお出しします';
+ el.textContent=t+(!sel.sky?'（?で説明）':'');el.hidden=false;}
+function drawRows(){const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
+ $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));guide();}
+$('rows').addEventListener('click',e=>{const d=e.target.closest('.lab.dk');if(d){showDict(d.dataset.dict);return;}const b=e.target.closest('.chip');if(!b||T<busyUntil||!S.active)return;const s=b.dataset.s,k=b.dataset.k;if(s==='fin'&&sel.fin===k){sel.fin=null;D.fin=null;drawRows();return;}if(sel[s]===k)return;sel[s]=k;if(dictOpen)showDict(dictOpen);drawRows();if(!$('order').classList.contains('folded')){finishSay();setFold(true);}act(s,k);});
 function recomputeFill(){fillTarget=(sel.sky?.6:0)+(sel.season?.3:0);pourOrder=pourOrder.filter(x=>sel[x]);
  const cs=pourOrder.map(x=>col(ING[x].find(i=>i.k===sel[x]).c));if(!cs.length){tintT.set(1,1,1);tintBT.set(1,1,1);}else{tintT.copy(cs[0]);tintBT.copy(cs[cs.length-1]);}}
 /* ---------- 材料ごとの音（ぽとん＋にじみ出る音） ---------- */
@@ -807,13 +838,13 @@ const faceUrl=(o,e)=>`art/faces/${o.reg||FACEW[o.who]||'m2'}_${e}.webp`,FTEX={};
 function setFace(o){const u=faceUrl(o,1);$('ava').style.backgroundImage=`url(${u})`;silT=1;
  const use=t=>{silMat.map=t;silMat.color.set('#bdb8cc');silMat.needsUpdate=true;const asp=t.image.width/t.image.height;silS.scale.set(4.4*asp,4.4,1);};
  if(FTEX[u])use(FTEX[u]);else new THREE.TextureLoader().load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;FTEX[u]=t;if(S.queue[S.idx]===o)use(t);});}
-function showCustomer(){const o=S.queue[S.idx];sfxStep=0;setFold(false);$('tip').hidden=!(S.night===1&&S.idx===0);moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;},350);$('night').textContent=`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`;drawRows();}
+function showCustomer(){const o=S.queue[S.idx];sfxStep=0;setFold(false);$('tip').hidden=!(S.night===1&&S.idx===0);moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;guide();},350);$('night').textContent=`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`;drawRows();}
 const cname=(a,b,c,f)=>`${SEAW[b]}と${LANDW[c]}の${SKYW[a]}`+(f?`、${FINW[f]}`:'');
 function reply(o,m){const miss=['sky','season','land'].filter(k=>!m[k]);if(!miss.length)return o.thanks;
  const t=miss.length===1?`近い……。でも、あの日はもう少し${FEELP[o[miss[0]]]}気がします。`:miss.length===2?'きれいですね。……でも、あの日の気持ちとは、少しちがうみたい。':'知らない景色……。でも、これはこれで、ほっとします。';
  return o.reg?t+'また、話しに来てもいいですか。':t;}
 /* 結果カードの読み解き：段ごとに、あの日の気持ちと、お話の中の手がかり */
-$('serveBtn').onclick=()=>{if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;S.active=false;$('serveBtn').disabled=true;setTimeout(startRecall,Math.max(0,readyAt-T)*1000+150);};
+$('serveBtn').onclick=()=>{if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;S.active=false;if(dictOpen)showDict(dictOpen);guide();$('serveBtn').disabled=true;setTimeout(startRecall,Math.max(0,readyAt-T)*1000+150);};
 const FINALE={minato:{pos:'63% 50%',cap:'一年後の、雨上がり。'},shino:{pos:'36% 50%',cap:'はじめて会った夜の、浴衣の後ろ姿。'},yui:{pos:'60% 50%',cap:'おかえり、と手を振る母。'}};
 const FEELW=k=>[...ING.sky,...ING.season,...ING.land].find(i=>i.k===k);
 function readsHTML(o,m){return `<div class="reads">${['sky','season','land'].map((x,i)=>{const a=FEELW(o[x]),y=FEELW(sel[x]);return `<div class="rd ${m[x]?'ok':'ng'}"><span class="rl">${LAB[x]}</span><div><p class="rf1"><span class="mk">${m[x]?'○':'×'}</span>あの日は「<b>${esc(a.t)}</b>」</p>${o.clue?`<p class="rq">「${esc(o.clue[i])}」</p>`:''}${m[x]?'':`<p class="ry">選んだのは ${esc(y.n)}（${esc(y.t)}）</p>`}</div></div>`;}).join('')}</div>`;}
@@ -824,7 +855,7 @@ function startRecall(){moodStop(1.2);recall=1;gaze=true;$('hud').classList.add('
  const re=[...LAYERS,...ARTS].filter(L=>L.m.visible&&L.rev>.9);re.forEach(L=>{L.rev=0;L.delay=.25+L.m.renderOrder*.2;});
  const t0=performance.now();RC++;let done=false;const o=S.queue[S.idx],rr=o.reg&&REGS.find(x=>x.id===o.reg),isFin=rr&&FINALE[o.reg]&&sel.sky===o.sky&&sel.season===o.season&&sel.land===o.land&&S.eps[o.reg]+1>=rr.eps.length;if(isFin){const pi=new Image();pi.src='art/finale/'+o.reg+'.webp';}
  const fin=()=>{if(done)return;done=true;recallSkip=null;$('gazeHint').classList.remove('on');const end=()=>{doServe();recall=0;gaze=false;$('hud').classList.remove('gaze');};if(isFin)setTimeout(()=>showFinale(o,end),900);else end();};
- if(RC>1){$('gazeHint').textContent='タップで飛ばす';$('gazeHint').classList.add('on');recallSkip=()=>{re.forEach(L=>{L.delay=0;L.rev=1;});setTimeout(fin,250);};}
+ {$('gazeHint').textContent='タップで飛ばす';$('gazeHint').classList.add('on');recallSkip=()=>{re.forEach(L=>{L.delay=0;L.rev=1;});setTimeout(fin,250);};}
  const chk=()=>{if(done)return;if(re.every(L=>L.rev>.98)&&performance.now()-t0>2600)setTimeout(fin,500);else if(performance.now()-t0>9000)fin();else setTimeout(chk,150);};setTimeout(chk,1500);}
 function doServe(){const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.season===o.season,land:sel.land===o.land},n=m.sky+m.season+m.land;
  const img=snap(),key=`${sel.sky}-${sel.season}-${sel.land}`,name=cname(sel.sky,sel.season,sel.land,sel.fin),isNew=!BOOK[key];
@@ -834,8 +865,8 @@ function doServe(){const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.seas
 /* 提供した瞬間：グラスを覗いたお客さんの表情が変わり、あの日の気持ちを語る */
 function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector('.rf.a'),fb=el.querySelector('.rf.b'),ln=el.querySelector('.rline');
  el.querySelector('.rbg').style.backgroundImage=`url(${img})`;fa.src=faceUrl(o,1);fb.src=faceUrl(o,n===3?0:2);el.querySelector('.rwho').textContent=o.who;ln.textContent='';el.classList.remove('turn','done');
- let st=0,tm=null,closed=false;const type=()=>{st=1;let i=0;tm=setInterval(()=>{ln.textContent=line.slice(0,++i);if(i>=line.length){clearInterval(tm);tm=null;el.classList.add('done');st=2;}},45);};
- const t1=setTimeout(()=>{el.classList.add('turn');if(n===3)sChime();},1200),t2=setTimeout(type,2100);
+ let st=0,tm=null,closed=false;const type=()=>{st=1;let i=0;tm=setInterval(()=>{ln.textContent=line.slice(0,++i);if(i>=line.length){clearInterval(tm);tm=null;el.classList.add('done');st=2;}},38);};
+ const t1=setTimeout(()=>{el.classList.add('turn');if(n===3)sChime();},900),t2=setTimeout(type,1500);
  requestAnimationFrame(()=>el.classList.add('on'));
  el.onclick=()=>{if(closed)return;if(st===0){clearTimeout(t1);clearTimeout(t2);el.classList.add('turn');type();return;}if(st===1){clearInterval(tm);ln.textContent=line;el.classList.add('done');st=2;return;}closed=true;el.onclick=null;el.classList.remove('on');setTimeout(then,450);};}
 function playTalk(lines,who){const box=$('talk');let i=0;const step=()=>{if(i>=lines.length)return;const isM=i%2===0,p=document.createElement('p'),sm=document.createElement('small'),sp=document.createElement('span');p.className=isM?'m':'';sm.textContent=isM?'マスター':who;p.append(sm,sp);box.append(p);const t=lines[i++];let j=0;const tm=setInterval(()=>{j++;sp.textContent='「'+t.slice(0,j)+(j>=t.length?'」':'');if(j>=t.length){clearInterval(tm);setTimeout(step,500);}},38);};step();}
@@ -851,7 +882,8 @@ $('bookBtn').onclick=openBook;
 $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book');});
 if(S.night>1){$('openBtn').textContent=`${S.night}夜目を開店する`;}
 setTimeout(()=>{if(!ART)prePaint();},700);
-$('openBtn').onclick=()=>{ac();$('intro').hidden=true;startNight();};
+$('openBtn').onclick=()=>{ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
+$('openBtn').disabled=false;$('openBtn').textContent='開店する';
 
 /* ---------- 画面合わせ ---------- */
 function measure(){const tr=$('top').getBoundingClientRect(),sr=$('shelf').getBoundingClientRect();freeTop=tr.bottom;freeBot=sr.top;}
