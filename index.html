@@ -26,7 +26,7 @@
    LAYOUT: 上に客の言葉、中央にグラス、下に酒棚。縦画面優先 */
 :root{color-scheme:dark;--ink:#eef1f7;--mute:#aab4ca;--panel:rgba(11,17,36,.72);--line:rgba(255,255,255,.13);--accent:#f4a48c}
 *{box-sizing:border-box;min-width:0}
-html,body{margin:0;height:100%;background:#05070f;color:var(--ink);overflow:hidden;font:16px/1.6 "Zen Kaku Gothic New",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overscroll-behavior:none;background:#05070f;color:var(--ink);overflow:hidden;font:16px/1.6 "Zen Kaku Gothic New",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .hud{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 10px) max(12px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 10px) max(12px,env(safe-area-inset-left));transition:opacity .6s}
 .hud.gaze{opacity:0}.hud.gaze *{pointer-events:none!important}
@@ -886,17 +886,18 @@ $('openBtn').onclick=()=>{ac();$('intro').hidden=true;startNight();for(const tm 
 $('openBtn').disabled=false;$('openBtn').textContent='開店する';
 
 /* ---------- 画面合わせ ---------- */
-function measure(){const tr=$('top').getBoundingClientRect(),sr=$('shelf').getBoundingClientRect();freeTop=tr.bottom;freeBot=sr.top;}
-function resize(){W=innerWidth;H=innerHeight;renderer.setSize(W,H,false);composer.setSize(W,H);camera.aspect=W/H;measure();}
+function measure(){const tr=$('top').getBoundingClientRect(),sr=$('shelf').getBoundingClientRect(),g=$('guide');freeTop=tr.bottom;freeBot=g&&!g.hidden?Math.min(sr.top,g.getBoundingClientRect().top-6):sr.top;}
+function resize(){W=canvas.clientWidth||innerWidth;H=canvas.clientHeight||innerHeight;renderer.setSize(W,H,false);composer.setSize(W,H);camera.aspect=W/H;measure();}
 addEventListener('resize',resize);
-const ro=new ResizeObserver(measure);ro.observe($('top'));ro.observe($('shelf'));
+const ro=new ResizeObserver(measure);ro.observe($('top'));ro.observe($('shelf'));ro.observe($('guide'));
+if(window.visualViewport)visualViewport.addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,300));
 resize();
 
 const vC=new THREE.Vector3(),vR=new THREE.Vector3(),vRight=new THREE.Vector3();
-function placeCamera(dt){
+function placeCamera(dt){if(canvas.clientWidth!==W||canvas.clientHeight!==H)resize();
  const top=gaze?0:freeTop,bot=gaze?H:freeBot,h=Math.max(140,bot-top),yC=(top+bot)/2;
  const tanH=Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
- const visH=Math.max(2.3*H/h,2.25/(W/H));distT=visH/(2*tanH)*(recall?.8:1);offT=H/2-yC;
+ const visH=Math.max(2.45*H/h,2.25/(W/H));distT=visH/(2*tanH)*(recall?.8:1);offT=H/2-yC;
  const k=1-Math.exp(-dt*4);dist=lerp(dist,distT,k);off=lerp(off,offT,k);
  yaw=lerp(yaw,tyaw,1-Math.exp(-dt*6));pitch=lerp(pitch,tpitch,1-Math.exp(-dt*6));
  const y=yaw+Math.sin(T*.21)*.035+(recall?Math.sin(T*.7)*.16:0),p=pitch+Math.sin(T*.17)*.012;
