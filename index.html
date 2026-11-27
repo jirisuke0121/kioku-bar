@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>記憶のバー</title>
-<meta name="description" content="お客さんの思い出話から気持ちを読んで、一杯をつくる。グラスの中に、あの日の景色がにじみ出る小さなゲーム。">
+<meta name="description" content="お客さんの話から今の気持ちを読み取り、一杯をつくる。グラスの中に、忘れていた記憶がよみがえる全3話のゲーム。">
 <meta name="theme-color" content="#0b1024">
 <meta property="og:type" content="website">
 <meta property="og:title" content="記憶のバー">
-<meta property="og:description" content="お客さんの思い出話から気持ちを読んで、一杯をつくる。グラスの中に、あの日の景色がにじみ出る小さなゲーム。">
+<meta property="og:description" content="お客さんの話から今の気持ちを読み取り、一杯をつくる。グラスの中に、忘れていた記憶がよみがえる全3話のゲーム。">
 <meta property="og:url" content="https://jirisuke0121.github.io/kioku-bar/">
 <meta property="og:image" content="https://jirisuke0121.github.io/kioku-bar/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -16,6 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M12 14h40c0 13-9 22-20 22S12 27 12 14z' fill='%23ff9a4d'/%3E%3Cpath d='M30 36h4v16h-4z' fill='%23f6efe6'/%3E%3Cpath d='M20 54h24v4H20z' fill='%23f6efe6'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<script>if(new URLSearchParams(location.search).has('archive'))document.documentElement.dataset.version='archive';</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
@@ -140,6 +141,8 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .big{font:700 46px/1.05 "Shippori Mincho",serif!important;letter-spacing:.12em}
 .lead{font:500 17px/1.8 "Shippori Mincho",serif}
 .note{font-size:14px;color:var(--mute);text-align:left;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 14px}
+.version-link{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;color:var(--mute);font-size:13px;text-underline-offset:3px}
+[data-version="archive"] #intro .main-version,html:not([data-version="archive"]) #intro .archive-version{display:none}
 .stars{font-size:26px;letter-spacing:.25em;color:var(--accent)}
 .thumb{width:160px;aspect-ratio:4/5;border-radius:14px;object-fit:cover;border:1px solid var(--line);display:block;margin:0 auto 6px;background:#000}
 .reply{font:500 17px/1.8 "Shippori Mincho",serif}
@@ -233,9 +236,14 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 <div class="modal" id="intro">
   <div class="card">
     <h2 class="big">記憶のバー</h2>
-    <p class="lead" style="margin-top:0">グラスに映る、あの日の景色</p><p class="lead">いらっしゃいませ。<br>ここは、もう一度見たい景色を<br>一杯にしてお出しする店です。</p>
-    <p class="note">お客さんの話から<b>あの日の気持ち</b>を読み取って、一杯を作ってください。<b>ベース</b>はその時の気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな一日だったか。材料を一滴落とすたびに、グラスの中に景色がにじみ出ます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
+    <p class="lead main-version" style="margin-top:0">グラスに映る、あの日の景色</p>
+    <p class="lead archive-version" style="margin-top:0">旧本編アーカイブ</p>
+    <p class="lead">いらっしゃいませ。<br>ここは、もう一度見たい景色を<br>一杯にしてお出しする店です。</p>
+    <p class="note main-version">お客さんは、言葉にならない気持ちを抱えてやってきます。話から<b>今の胸の内</b>を読み取って、一杯を作ってください。<b>ベース</b>は気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな日か。ぴったり合うと、忘れていた記憶がよみがえります。</p>
+    <p class="note archive-version">お客さんの話から<b>あの日の気持ち</b>を読み取って、一杯を作ってください。<b>ベース</b>はその時の気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな一日だったか。材料を一滴落とすたびに、グラスの中に景色がにじみ出ます。記憶どおりの一杯を出せると、常連さんの話が次の夜に続きます。グラスはドラッグで少し傾けられます。</p>
     <div class="cardacts"><button class="btn pri" id="openBtn" disabled>準備中…</button></div>
+    <a class="version-link main-version" href="?archive">旧本編のアーカイブ</a>
+    <a class="version-link archive-version" href="./index.html">現行版へ戻る</a>
   </div>
 </div>
 <div id="rot" role="alert"><div class="rotbox"><div class="rotph" aria-hidden="true"></div><p>スマホを縦にして、遊んでください</p></div></div>
@@ -301,9 +309,9 @@ const REGS=[
   {text:'担当の患者さんが亡くなった日、同期といつもの道を歩いて帰ったんです。二人とも何も言わなくて。しんとした中で、同期が黙って肩を貸してくれて。……あの日から、本当の意味で看護師が始まった気がします。',clue:['しんとした中で','本当の意味で看護師が始まった','いつもの道を歩いて帰った'],sky:'night',season:'spring',land:'pole',thanks:'……あの子がいなかったら、たぶん辞めてました。',talk:['いい同期ですね','はい。今度、休みを合わせて、実家に帰ってみようかって話してるんです。']},
   {text:'久しぶりに実家へ帰った日です。駅を出て、実家へ続く道と、昔よく遊んだ道の分かれ目で、ちょっと立ち止まって。帰ってきたんだって胸がどきどきして……静かな中で、母が迎えに来てくれていました。',clue:['静かな中で','胸がどきどきして','実家へ続く道と、昔よく遊んだ道の分かれ目'],sky:'night',season:'summer',land:'rail',thanks:'……お願いごと、ちゃんとできました。',talk:['どんなお願いを？','秘密です。でも、また明日から頑張れそうです。']}]}
 ];
-/* ---------- 試作版（URLに ?proto を付けた時だけ）：今の気持ちに合う一杯で、忘れていた記憶がよみがえる ---------- */
-const PROTOMODE=new URLSearchParams(location.search).has('proto');
-const PROTO=[
+/* ---------- 現行版：今の気持ちに合う一杯で、忘れていた記憶がよみがえる ---------- */
+const ARCHIVE_MODE=document.documentElement.dataset.version==='archive';
+const MAIN_STORIES=[
  {who:'通勤中の会社員',key:'kaisha',sky:'day',season:'winter',land:'rail',
   text:'異動の話、受けようと思うんです。そう決めたら、気持ちはすっと軽くなって。……なのに、返事だけができないんです。昼休みにみんなで囲む、あのストーブの前の席が、ちらついて。',
   think:{sky:'決めた、と言う声は明るかった。行くかどうかは、もう迷っていないらしい。',season:'ストーブの席、か。仕事の話じゃない。この人が手放したくないものは、何だろう。',land:'それでも返事ができない。今夜のこの人は、どんな場所に立っているのか。',ready:'前にも、同じような場所に立ったことがあるはずだ。この一杯で、思い出してくれるといい。'},
@@ -849,8 +857,8 @@ function think(){const el=$('think'),o=S.queue&&S.queue[S.idx],on=!!(o&&o.think&
  const keys=['sky','season','land','ready'],cur=!sel.sky?0:!sel.season?1:!sel.land?2:3,folded=$('order').classList.contains('folded');
  el.innerHTML=keys.slice(0,cur+1).map((k,i)=>folded&&i!==cur?'':`<span class="tl${i===cur?' cur':''}">（${esc(o.think[k])}）</span>`).join('');
  const key=S.idx+':'+cur;if(key!==thinkKey){thinkKey=key;el.hidden=true;void el.offsetWidth;}el.hidden=false;}
-function guide(){think();const el=$('guide');const on=!PROTOMODE&&S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
- const P=PROTOMODE,t=!sel.sky?(P?'まずはベース。今の気持ちは、どんな色？':'まずはベース。あの日の気持ちの色は？'):!sel.season?(P?'次は香り。胸の内で、何が動いている？':'次は香り。胸の内は、どう動いていた？'):!sel.land?(P?'最後に飾り。今は、どんな日？':'最後に飾り。どんな一日だった？'):'「提供する」で、一杯をお出しします';
+function guide(){think();const el=$('guide');const on=ARCHIVE_MODE&&S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
+ const t=!sel.sky?'まずはベース。あの日の気持ちの色は？':!sel.season?'次は香り。胸の内は、どう動いていた？':!sel.land?'最後に飾り。どんな一日だった？':'「提供する」で、一杯をお出しします';
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.style.whiteSpace='nowrap';el.hidden=false;}
 function drawRows(){const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
  $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));guide();}
@@ -908,15 +916,18 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){if(gaze&&!recall)setGaze(fal
 $('sndBtn').onclick=()=>{muted=!muted;$('sndBtn').style.opacity=muted?.45:1;if(muted){stopTheme(.3);moodStop(.3);}else if(S.active)moodStart(S.queue[S.idx]);if(!muted)ac();};
 
 /* ---------- 客と夜 ---------- */
-let SV={night:1};try{SV={...SV,...(JSON.parse(localStorage.getItem('kioku-bar-save-v1')||'{}')||{})};}catch(e){}
+let SV={night:1},BOOK={};
+if(ARCHIVE_MODE){
+ try{SV={...SV,...(JSON.parse(localStorage.getItem('kioku-bar-save-v1')||'{}')||{})};}catch(e){}
+ try{BOOK=JSON.parse(localStorage.getItem('kioku-bar-book-v1')||'{}')||{};}catch(e){}
+}
 const S={night:SV.night|0||1,eps:{minato:(SV.eps&&SV.eps.minato)|0||(SV.ep|0),shino:(SV.eps&&SV.eps.shino)|0,yui:(SV.eps&&SV.eps.yui)|0},unlocked:Array.isArray(SV.unlocked)?SV.unlocked.filter(k=>FINW[k]):[],known:Array.isArray(SV.known)?SV.known:[],idx:0,queue:[],deck:[],results:[],active:false};
-const saveSV=()=>{if(PROTOMODE)return;try{localStorage.setItem('kioku-bar-save-v1',JSON.stringify({night:S.night,eps:S.eps,unlocked:S.unlocked,known:S.known}));}catch(e){}};
-let BOOK={};try{BOOK=JSON.parse(localStorage.getItem('kioku-bar-book-v1')||'{}')||{};}catch(e){BOOK={};}
-const saveBook=()=>{if(PROTOMODE)return;try{localStorage.setItem('kioku-bar-book-v1',JSON.stringify(BOOK));}catch(e){}};
+const saveSV=()=>{if(!ARCHIVE_MODE)return;try{localStorage.setItem('kioku-bar-save-v1',JSON.stringify({night:S.night,eps:S.eps,unlocked:S.unlocked,known:S.known}));}catch(e){}};
+const saveBook=()=>{if(!ARCHIVE_MODE)return;try{localStorage.setItem('kioku-bar-book-v1',JSON.stringify(BOOK));}catch(e){}};
 let sayTimer=null,sayText='';
 function say(t){sayText=t;clearInterval(sayTimer);saying=true;think();const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;think();}},42);}
 function finishSay(){clearInterval(sayTimer);saying=false;$('memory').textContent=sayText;think();}
-function startNight(){if(PROTOMODE){S.night=1;S.queue=PROTO.map(o=>({...o}));S.idx=0;S.results=[];S.queue.forEach(o=>{const im=new Image();im.onload=()=>{o.mem=im;};im.src='art/memory/'+o.key+'.webp';});showCustomer();return;}const regs=REGS.filter(r=>S.night>=r.from&&S.eps[r.id]<r.eps.length).map(r=>({...r.eps[S.eps[r.id]],who:r.who,look:r.look,rim:r.rim,reg:r.id,epNo:S.eps[r.id]+1,epAll:r.eps.length})),n=5-regs.length;if(S.deck.length<n)S.deck=S.deck.concat(ORDERS.slice().sort(()=>Math.random()-.5));const rs=S.deck.splice(0,n),gs=regs.slice(),q=[];while(gs.length||rs.length){if(gs.length&&(gs.length>=rs.length||!rs.length))q.push(gs.shift());if(rs.length)q.push(rs.shift());}const mi=q.findIndex(x=>x.reg==='minato');if(S.night===1&&mi>0)q.unshift(q.splice(mi,1)[0]);S.queue=q;S.idx=0;S.results=[];saveSV();showCustomer();}
+function startNight(){if(!ARCHIVE_MODE){S.night=1;S.queue=MAIN_STORIES.map(o=>({...o}));S.idx=0;S.results=[];S.queue.forEach(o=>{const im=new Image();im.onload=()=>{o.mem=im;};im.src='art/memory/'+o.key+'.webp';});showCustomer();return;}const regs=REGS.filter(r=>S.night>=r.from&&S.eps[r.id]<r.eps.length).map(r=>({...r.eps[S.eps[r.id]],who:r.who,look:r.look,rim:r.rim,reg:r.id,epNo:S.eps[r.id]+1,epAll:r.eps.length})),n=5-regs.length;if(S.deck.length<n)S.deck=S.deck.concat(ORDERS.slice().sort(()=>Math.random()-.5));const rs=S.deck.splice(0,n),gs=regs.slice(),q=[];while(gs.length||rs.length){if(gs.length&&(gs.length>=rs.length||!rs.length))q.push(gs.shift());if(rs.length)q.push(rs.shift());}const mi=q.findIndex(x=>x.reg==='minato');if(S.night===1&&mi>0)q.unshift(q.splice(mi,1)[0]);S.queue=q;S.idx=0;S.results=[];saveSV();showCustomer();}
 const FACEW={'仕事帰りの女性':'f1','大学生':'m1','通勤中の会社員':'m2','配達員':'m1','高校の先生':'m2','出張帰りの男性':'m2','ひとり客':'f1','終電を逃した青年':'m1','文庫本を持つ女性':'f1','自転車乗り':'m1','着物の女性':'f2','近所のおじさん':'m2','家族連れの父親':'m2','詩を書く人':'f2'};
 const faceUrl=(o,e)=>`art/faces/${o.face||o.reg||FACEW[o.who]||'m2'}_${e}.webp`,FTEX={};
 function setFace(o){const u=faceUrl(o,1);$('ava').style.backgroundImage=`url(${u})`;silT=1;
@@ -975,7 +986,7 @@ function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector
 function playTalk(lines,who){const box=$('talk');let i=0;const step=()=>{if(i>=lines.length)return;const isM=i%2===0,p=document.createElement('p'),sm=document.createElement('small'),sp=document.createElement('span');p.className=isM?'m':'';sm.textContent=isM?'マスター':who;p.append(sm,sp);box.append(p);const t=lines[i++];let j=0;const tm=setInterval(()=>{j++;sp.textContent='「'+t.slice(0,j)+(j>=t.length?'」':'');if(j>=t.length){clearInterval(tm);setTimeout(step,500);}},38);};step();}
 function next(){if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.idx++;if(S.idx>=S.queue.length)setTimeout(summary,700);else setTimeout(showCustomer,800);}
 function summary(){const tot=S.results.reduce((a,r)=>a+r.n,0),nw=S.results.filter(r=>r.isNew).length;
- $('resultCard').innerHTML=PROTOMODE?`<h2>今夜は、ここまで</h2><p class="lead" style="margin:4px 0">試作版は、3人のお客さんでした。</p><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="nightBtn">もう一度、最初から</button></div>`:`<h2>${S.night}夜目、閉店です</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
+ $('resultCard').innerHTML=!ARCHIVE_MODE?`<h2>今夜は、ここまで</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="nightBtn">もう一度、最初から</button></div>`:`<h2>${S.night}夜目、閉店です</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
  $('result').hidden=false;if($('sumBook'))$('sumBook').onclick=openBook;$('nightBtn').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;S.night++;saveSV();startNight();};}
 function openBook(){const keys=[];ING.sky.forEach(a=>ING.season.forEach(b=>ING.land.forEach(c=>keys.push([a.k,b.k,c.k]))));const got=keys.filter(k=>BOOK[k.join('-')]).length;
  $('bookCard').innerHTML=`<h2>図鑑</h2><p style="color:var(--mute);margin:0">見つけた一杯 ${got} / ${keys.length}</p><div class="grid">${keys.map(k=>{const b=BOOK[k.join('-')];return b?`<div class="cell"><img src="${b.img}" alt=""><span>${esc(b.name)}</span></div>`:'<div class="cell">？</div>';}).join('')}</div><div class="cardacts"><button class="btn pri" id="bookClose">閉じる</button></div>`;
@@ -983,11 +994,10 @@ function openBook(){const keys=[];ING.sky.forEach(a=>ING.season.forEach(b=>ING.l
 function closeModal(id){$(id).hidden=true;}
 $('bookBtn').onclick=openBook;
 $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book');});
-if(S.night>1){$('openBtn').textContent=`${S.night}夜目を開店する`;}
 setTimeout(()=>{if(!ART)prePaint();},700);
 $('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
-$('openBtn').disabled=false;$('openBtn').textContent='開店する';
-if(PROTOMODE){document.querySelector('#intro .note').innerHTML='お客さんは、言葉にならない気持ちを抱えてやってきます。話から<b>今の胸の内</b>を読み取って、一杯を作ってください。<b>ベース</b>は気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな日か。ぴったり合うと、忘れていた記憶がよみがえります。';document.querySelector('#intro .lead').textContent='グラスに映る、あの日の景色（試作版・3話）';$('tip').textContent='段の名前の「?」で、気持ちの説明が出ます。外れても作り直せます。';}
+$('openBtn').disabled=false;$('openBtn').textContent=S.night>1?`${S.night}夜目を開店する`:'開店する';
+if(!ARCHIVE_MODE)$('tip').textContent='段の名前の「?」で、気持ちの説明が出ます。外れても作り直せます。';
 
 /* ---------- 画面合わせ ---------- */
 function measure(){const tr=$('top').getBoundingClientRect(),sr=$('shelf').getBoundingClientRect(),g=$('guide');freeTop=tr.bottom;freeBot=g&&!g.hidden?Math.min(sr.top,g.getBoundingClientRect().top-6):sr.top;}
