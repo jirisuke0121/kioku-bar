@@ -49,6 +49,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .order.folded #memory{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
 .order.folded .tip{display:none}
 .think{font:500 13.5px/1.7 "Shippori Mincho",serif;color:#c9d2ef;margin:6px 0 0;border-top:1px dashed var(--line);padding-top:6px;animation:rise .5s ease}
+.think .tl{display:block}.think .tl+.tl{margin-top:3px}.think .tl:not(.cur){opacity:.5}
 .think::before{content:'マスターの胸の内';display:block;font:500 11px/1.4 "Zen Kaku Gothic New",sans-serif;color:var(--mute);letter-spacing:.08em;margin-bottom:1px}
 .order.folded.hasthink #memory{display:none}
 .order.folded.hasthink .think{border-top:0;padding-top:0;margin-top:2px}
@@ -62,6 +63,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .lab.dk.on{color:var(--accent)}.lab.dk.on i{border-color:var(--accent);color:var(--accent)}
 #shelf{position:relative}
 #dict{position:absolute;left:0;right:0;bottom:calc(100% + 8px);background:rgba(13,19,40,.95);border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:rise .25s ease}
+#dict .dth{font:500 13px/1.6 "Shippori Mincho",serif;color:#c9d2ef;margin:0 0 8px}
 #dict h3{font:700 14px/1.4 "Shippori Mincho",serif;margin:0 0 8px;color:var(--accent)}
 #dict dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:baseline}
 #dict dt{font-weight:700;font-size:14px;white-space:nowrap}#dict dt i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -837,10 +839,13 @@ const FEELD={day:'迷いが晴れて、前を向けた気持ち',dusk:'嬉しさ
 const DICTH={sky:'ベース：その時の気持ちの色',season:'香り：胸の内の動き',land:'飾り：どんな一日だったか'};
 let dictOpen=null;
 function showDict(slot){dictOpen=dictOpen===slot?null:slot;const el=$('dict');document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));
- if(!dictOpen){el.hidden=true;guide();return;}el.innerHTML=`<h3>${DICTH[slot]}</h3><dl>${ING[slot].map(i=>`<dt><i style="background:${i.c}"></i>${esc(i.t)}</dt><dd>${esc(FEELD[i.k])}</dd>`).join('')}</dl>`;el.hidden=false;guide();}
+ if(!dictOpen){el.hidden=true;guide();return;}const oq=S.queue&&S.queue[S.idx];el.innerHTML=`<h3>${DICTH[slot]}</h3>${oq&&oq.think&&oq.think[slot]?`<p class="dth">マスターの胸の内：（${esc(oq.think[slot])}）</p>`:''}<dl>${ING[slot].map(i=>`<dt><i style="background:${i.c}"></i>${esc(i.t)}</dt><dd>${esc(FEELD[i.k])}</dd>`).join('')}</dl>`;el.hidden=false;guide();}
 /* 最初の一杯だけの案内 */
-function think(){const el=$('think'),o=S.queue&&S.queue[S.idx],on=!!(o&&o.think&&S.active&&!saying);$('order').classList.toggle('hasthink',on);if(!on){el.hidden=true;return;}
- const k=!sel.sky?'sky':!sel.season?'season':!sel.land?'land':'ready',t='（'+o.think[k]+'）';if(el.textContent!==t||el.hidden){el.hidden=true;el.textContent=t;void el.offsetWidth;el.hidden=false;}}
+let thinkKey=null;
+function think(){const el=$('think'),o=S.queue&&S.queue[S.idx],on=!!(o&&o.think&&S.active&&!saying);$('order').classList.toggle('hasthink',on);if(!on){el.hidden=true;thinkKey=null;return;}
+ const keys=['sky','season','land','ready'],cur=!sel.sky?0:!sel.season?1:!sel.land?2:3,folded=$('order').classList.contains('folded');
+ el.innerHTML=keys.slice(0,cur+1).map((k,i)=>folded&&i!==cur?'':`<span class="tl${i===cur?' cur':''}">（${esc(o.think[k])}）</span>`).join('');
+ const key=S.idx+':'+cur;if(key!==thinkKey){thinkKey=key;el.hidden=true;void el.offsetWidth;}el.hidden=false;}
 function guide(){think();const el=$('guide');const on=!PROTOMODE&&S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
  const P=PROTOMODE,t=!sel.sky?(P?'まずはベース。今の気持ちは、どんな色？':'まずはベース。あの日の気持ちの色は？'):!sel.season?(P?'次は香り。胸の内で、何が動いている？':'次は香り。胸の内は、どう動いていた？'):!sel.land?(P?'最後に飾り。今は、どんな日？':'最後に飾り。どんな一日だった？'):'「提供する」で、一杯をお出しします';
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.style.whiteSpace='nowrap';el.hidden=false;}
@@ -884,7 +889,7 @@ $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
 $('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}};
 /* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
 let saying=false;
-function setFold(f){$('order').classList.toggle('folded',f);$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');}
+function setFold(f){$('order').classList.toggle('folded',f);if(typeof think==='function'&&typeof saying!=='undefined')think();$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');}
 $('order').onclick=()=>{if(saying){finishSay();return;}setFold(!$('order').classList.contains('folded'));};
 $('fold').onclick=e=>{e.stopPropagation();finishSay();setFold(!$('order').classList.contains('folded'));};
 
