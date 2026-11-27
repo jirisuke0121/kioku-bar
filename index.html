@@ -78,6 +78,11 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #gazeHint.on{opacity:.8}
 #finale{position:fixed;inset:0;z-index:8;background:#000;opacity:0;transition:opacity 1.8s ease;pointer-events:none;overflow:hidden}
 #finale.on{opacity:1;pointer-events:auto}
+#rot{display:none;position:fixed;inset:0;z-index:50;background:#05070f;color:var(--ink);place-items:center;text-align:center}
+.rotbox p{font:500 15px/1.8 "Shippori Mincho",serif;margin:14px 0 0;letter-spacing:.08em}
+.rotph{width:34px;height:58px;border:2px solid var(--accent);border-radius:8px;margin:0 auto;animation:rotph 2.4s ease-in-out infinite}
+@keyframes rotph{0%,35%{transform:rotate(90deg)}65%,100%{transform:rotate(0)}}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#rot{display:grid}}
 #react{position:fixed;inset:0;z-index:7;display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .7s ease;cursor:pointer}
 #react.on{opacity:1;pointer-events:auto}
 #react .rbg{position:absolute;inset:-40px;background:#05070f center/cover no-repeat;filter:blur(18px) brightness(.42) saturate(1.2);transform:scale(1.08)}
@@ -204,6 +209,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
     <div class="cardacts"><button class="btn pri" id="openBtn" disabled>準備中…</button></div>
   </div>
 </div>
+<div id="rot" role="alert"><div class="rotbox"><div class="rotph" aria-hidden="true"></div><p>スマホを縦にして、遊んでください</p></div></div>
 <div id="react" aria-live="polite"><div class="rbg"></div><div class="rbox"><div class="rfaces"><img class="rf a" alt=""><img class="rf b" alt=""></div><p class="rwho"></p><p class="rline"></p><p class="rhint">タップで続ける</p></div></div>
 <div class="modal" id="result" hidden><div class="card" id="resultCard"></div></div>
 <div class="modal" id="book" hidden><div class="card" id="bookCard"></div></div>
@@ -882,7 +888,7 @@ $('bookBtn').onclick=openBook;
 $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book');});
 if(S.night>1){$('openBtn').textContent=`${S.night}夜目を開店する`;}
 setTimeout(()=>{if(!ART)prePaint();},700);
-$('openBtn').onclick=()=>{ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
+$('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
 $('openBtn').disabled=false;$('openBtn').textContent='開店する';
 
 /* ---------- 画面合わせ ---------- */
