@@ -48,6 +48,10 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .order.folded .fold::before{transform:translateY(-2px) rotate(225deg)}
 .order.folded #memory{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
 .order.folded .tip{display:none}
+.think{font:500 13.5px/1.7 "Shippori Mincho",serif;color:#c9d2ef;margin:6px 0 0;border-top:1px dashed var(--line);padding-top:6px;animation:rise .5s ease}
+.think::before{content:'マスターの胸の内';display:block;font:500 11px/1.4 "Zen Kaku Gothic New",sans-serif;color:var(--mute);letter-spacing:.08em;margin-bottom:1px}
+.order.folded.hasthink #memory{display:none}
+.order.folded.hasthink .think{border-top:0;padding-top:0;margin-top:2px}
 #who{font-size:13px;color:var(--accent)}
 #memory{font:500 17px/1.75 "Shippori Mincho",serif;margin:2px 0 0;min-height:3.5em}
 #shelf{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;gap:7px}
@@ -152,6 +156,8 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .ry{font-size:12px;color:var(--mute);margin-top:2px!important}
 .new{display:inline-block;font-size:13px;color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:20px;padding:2px 10px}
 .cardacts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.card .cardacts{position:sticky;bottom:-24px;margin:0 -20px -24px;padding:16px 20px 22px;background:linear-gradient(rgba(13,19,40,0),rgba(13,19,40,.97) 34%);z-index:1}
+@media (max-height:820px){.rhead .thumb,.rhead .face{width:112px}}
 .strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 0 8px}
 .strip figure{margin:0;flex:none;width:96px;scroll-snap-align:start}
 .strip img{width:96px;aspect-ratio:4/5;border-radius:10px;object-fit:cover;display:block;border:1px solid var(--line)}
@@ -203,6 +209,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
     <div class="order" id="order" tabindex="0">
       <div class="ohead"><span class="ava" id="ava"></span><span id="who">&nbsp;</span><span id="night"></span><button class="fold" id="fold" aria-label="お話を畳む" aria-expanded="true"></button></div>
       <p id="memory"></p>
+      <p id="think" class="think" hidden></p>
       <p id="tip" class="tip" hidden>マスターより：あの日の気持ちを、一つずつ。外れても理由は聞けます。</p>
     </div>
   </div>
@@ -294,6 +301,7 @@ const PROTOMODE=new URLSearchParams(location.search).has('proto');
 const PROTO=[
  {who:'通勤中の会社員',key:'kaisha',sky:'day',season:'winter',land:'rail',
   text:'異動の話、受けようと思うんです。そう決めたら、気持ちはすっと軽くなって。……なのに、返事だけができないんです。昼休みにみんなで囲む、あのストーブの前の席が、ちらついて。',
+  think:{sky:'決めた、と言う声は明るかった。行くかどうかは、もう迷っていないらしい。',season:'ストーブの席、か。仕事の話じゃない。この人が手放したくないものは、何だろう。',land:'それでも返事ができない。今夜のこの人は、どんな場所に立っているのか。',ready:'前にも、同じような場所に立ったことがあるはずだ。この一杯で、思い出してくれるといい。'},
   clue:['決めたら、気持ちはすっと軽くなって','みんなで囲む、あのストーブの前の席','返事だけができない'],
   miss:{sky:'……惜しい。思い出しかけたものは、もっと、すかっと晴れていた気がします。',season:'……何か思い出しかけたのに、するっと逃げていきました。もう少し、あたたかいものだった気がするんです。',land:'近いんですが……どこか、立ち止まって迷うような場所だった気がして。'},
   missAll:'おいしいです。……でも、何も浮かんできませんでした。もう少しだけ、聞いてもらえますか。',
@@ -306,6 +314,7 @@ const PROTO=[
   after:['返事は、もう決まりましたか。','ええ。でも送別会では、ストーブの前の席を譲ってもらいます。']},
  {who:'着物の女性',key:'kimono',sky:'dusk',season:'winter',land:'torii',
   text:'来月、娘の結婚式なんです。準備は順調で、何も困っていないはずなのに……招待状の宛名を書いていたら、急に手が止まって。あの子の手を引いて歩いた頃の、小さな手の感触ばかり思い出すんです。おめでたいのに、変でしょう。',
+  think:{sky:'おめでたい、と言いながら手が止まる。嬉しさだけの色では、なさそうだ。',season:'思い出しているのは、小さな手の感触。胸の内に残っているのは、何だろう。',land:'来月は結婚式。この人は今、どんな日を前にしているのか。',ready:'手を引いた日のほかにも、きっと何かある。この一杯で、思い出してくれるといい。'},
   clue:['おめでたいのに、変でしょう','手を引いて歩いた頃の、小さな手の感触','来月、娘の結婚式'],
   miss:{sky:'きれい……。でも、思い出しかけたものは、嬉しいのか寂しいのか分からない色をしていた気がするの。',season:'近いわ……。でも、もう少し、あたたかいものだった気がするの。',land:'惜しいわ……。もっと、晴れがましい日だった気がするの。'},
   missAll:'おいしいわ。……でも、何も浮かんでこないの。もう少し、聞いてくださる？',
@@ -318,6 +327,7 @@ const PROTO=[
   after:['式では、泣いてしまいそうですか。','泣きますよ、きっと。でも鳥居の下のあの子みたいに、笑って手を振ります。']},
  {who:'近所のおじさん',key:'ojisan',face:'shino',sky:'night',season:'spring',land:'pole',
   text:'幼なじみが、親の代からの店を畳んでね。来月から、まるで畑違いの仕事に就くらしい。今夜このあと、いつもの店で会うんだが……かける言葉がひとつも浮かばなくて。さっきから、ひとりで黙りこくってる。',
+  think:{sky:'言葉が出ないと言って、黙りこくっている。にぎやかな色は、似合わないだろう。',season:'畑違いの仕事に就く、か。終わる話のようで、そうでもないらしい。',land:'会うのは、いつもの店。特別な席を用意する話ではなさそうだ。',ready:'言葉が見つからない夜が、前にもあったはずだ。この一杯で、思い出してくれるといい。'},
   clue:['さっきから、ひとりで黙りこくってる','来月から、まるで畑違いの仕事に就く','いつもの店で会う'],
   miss:{sky:'うまいよ。……だが、思い出しかけたものは、もっと、しんと静かだった気がするな。',season:'惜しいな。……何かが、ここから動きだすような匂いがしたはずなんだが。',land:'近いんだが……もっと、なんでもない場所だった気がする。'},
   missAll:'うまい酒だ。……だが、何も浮かんでこないな。もう少し、聞いてくれるか。',
@@ -829,7 +839,9 @@ let dictOpen=null;
 function showDict(slot){dictOpen=dictOpen===slot?null:slot;const el=$('dict');document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));
  if(!dictOpen){el.hidden=true;guide();return;}el.innerHTML=`<h3>${DICTH[slot]}</h3><dl>${ING[slot].map(i=>`<dt><i style="background:${i.c}"></i>${esc(i.t)}</dt><dd>${esc(FEELD[i.k])}</dd>`).join('')}</dl>`;el.hidden=false;guide();}
 /* 最初の一杯だけの案内 */
-function guide(){const el=$('guide');const on=S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
+function think(){const el=$('think'),o=S.queue&&S.queue[S.idx],on=!!(o&&o.think&&S.active&&!saying);$('order').classList.toggle('hasthink',on);if(!on){el.hidden=true;return;}
+ const k=!sel.sky?'sky':!sel.season?'season':!sel.land?'land':'ready',t='（'+o.think[k]+'）';if(el.textContent!==t||el.hidden){el.hidden=true;el.textContent=t;void el.offsetWidth;el.hidden=false;}}
+function guide(){think();const el=$('guide');const on=!PROTOMODE&&S.night===1&&S.idx===0&&S.active&&!dictOpen;if(!on){el.hidden=true;return;}
  const P=PROTOMODE,t=!sel.sky?(P?'まずはベース。今の気持ちは、どんな色？':'まずはベース。あの日の気持ちは、どんな色？'):!sel.season?(P?'次は香り。胸の内で、何が動いている？':'次は香り。胸の内は、どう動いていた？'):!sel.land?(P?'最後に飾り。今は、どんな日？':'最後に飾り。どんな一日だった？'):'「提供する」で、一杯をお出しします';
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.hidden=false;}
 function drawRows(){const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
@@ -894,8 +906,8 @@ const saveSV=()=>{if(PROTOMODE)return;try{localStorage.setItem('kioku-bar-save-v
 let BOOK={};try{BOOK=JSON.parse(localStorage.getItem('kioku-bar-book-v1')||'{}')||{};}catch(e){BOOK={};}
 const saveBook=()=>{if(PROTOMODE)return;try{localStorage.setItem('kioku-bar-book-v1',JSON.stringify(BOOK));}catch(e){}};
 let sayTimer=null,sayText='';
-function say(t){sayText=t;clearInterval(sayTimer);saying=true;const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;}},42);}
-function finishSay(){clearInterval(sayTimer);saying=false;$('memory').textContent=sayText;}
+function say(t){sayText=t;clearInterval(sayTimer);saying=true;think();const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;think();}},42);}
+function finishSay(){clearInterval(sayTimer);saying=false;$('memory').textContent=sayText;think();}
 function startNight(){if(PROTOMODE){S.night=1;S.queue=PROTO.map(o=>({...o}));S.idx=0;S.results=[];S.queue.forEach(o=>{const im=new Image();im.onload=()=>{o.mem=im;};im.src='art/memory/'+o.key+'.webp';});showCustomer();return;}const regs=REGS.filter(r=>S.night>=r.from&&S.eps[r.id]<r.eps.length).map(r=>({...r.eps[S.eps[r.id]],who:r.who,look:r.look,rim:r.rim,reg:r.id,epNo:S.eps[r.id]+1,epAll:r.eps.length})),n=5-regs.length;if(S.deck.length<n)S.deck=S.deck.concat(ORDERS.slice().sort(()=>Math.random()-.5));const rs=S.deck.splice(0,n),gs=regs.slice(),q=[];while(gs.length||rs.length){if(gs.length&&(gs.length>=rs.length||!rs.length))q.push(gs.shift());if(rs.length)q.push(rs.shift());}const mi=q.findIndex(x=>x.reg==='minato');if(S.night===1&&mi>0)q.unshift(q.splice(mi,1)[0]);S.queue=q;S.idx=0;S.results=[];saveSV();showCustomer();}
 const FACEW={'仕事帰りの女性':'f1','大学生':'m1','通勤中の会社員':'m2','配達員':'m1','高校の先生':'m2','出張帰りの男性':'m2','ひとり客':'f1','終電を逃した青年':'m1','文庫本を持つ女性':'f1','自転車乗り':'m1','着物の女性':'f2','近所のおじさん':'m2','家族連れの父親':'m2','詩を書く人':'f2'};
 const faceUrl=(o,e)=>`art/faces/${o.face||o.reg||FACEW[o.who]||'m2'}_${e}.webp`,FTEX={};
@@ -967,7 +979,7 @@ if(S.night>1){$('openBtn').textContent=`${S.night}夜目を開店する`;}
 setTimeout(()=>{if(!ART)prePaint();},700);
 $('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
 $('openBtn').disabled=false;$('openBtn').textContent='開店する';
-if(PROTOMODE){document.querySelector('#intro .note').innerHTML='お客さんは、言葉にならない気持ちを抱えてやってきます。話から<b>今の胸の内</b>を読み取って、一杯を作ってください。<b>ベース</b>は気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな日か。ぴったり合うと、忘れていた記憶がよみがえります。';document.querySelector('#intro .lead').textContent='グラスに映る、あの日の景色（試作版・3話）';$('tip').textContent='マスターより：今の胸の内を、一つずつ。外れても作り直せます。';}
+if(PROTOMODE){document.querySelector('#intro .note').innerHTML='お客さんは、言葉にならない気持ちを抱えてやってきます。話から<b>今の胸の内</b>を読み取って、一杯を作ってください。<b>ベース</b>は気持ちの色、<b>香り</b>は胸の内の動き、<b>飾り</b>はどんな日か。ぴったり合うと、忘れていた記憶がよみがえります。';document.querySelector('#intro .lead').textContent='グラスに映る、あの日の景色（試作版・3話）';$('tip').textContent='段の名前の「?」で、気持ちの説明が出ます。外れても作り直せます。';}
 
 /* ---------- 画面合わせ ---------- */
 function measure(){const tr=$('top').getBoundingClientRect(),sr=$('shelf').getBoundingClientRect(),g=$('guide');freeTop=tr.bottom;freeBot=g&&!g.hidden?Math.min(sr.top,g.getBoundingClientRect().top-6):sr.top;}
