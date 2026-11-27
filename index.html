@@ -426,6 +426,7 @@ const rim=new THREE.Mesh(new THREE.TorusGeometry(bowlR(1)-.004,.009,8,96),new TH
 /* ---------- グラスの中の景色（描いた絵を重ねる2.5D） ---------- */
 const RW=1024,RH=600,AS=RW/RH,MG=1.0625;
 const RT=new THREE.WebGLRenderTarget(RW,RH,{type:THREE.HalfFloatType,samples:4});
+const RT2=new THREE.WebGLRenderTarget(RW,RH,{type:THREE.HalfFloatType});
 const sD=new THREE.Scene();
 const camD=new THREE.OrthographicCamera(-AS/2,AS/2,.5,-.5,-10,10);
 const LW=1280,LH=750,VX=640,VY=432,F=650,CH=1.5;
@@ -698,15 +699,26 @@ const starTex=ctex(128,8,g=>{const gr=g.createLinearGradient(0,0,128,0);gr.addCo
 const STAR=new THREE.Mesh(new THREE.PlaneGeometry(.32,.012),new THREE.MeshBasicMaterial({map:starTex,transparent:true,opacity:0,depthTest:false,depthWrite:false,blending:THREE.AdditiveBlending}));STAR.renderOrder=8.7;STAR.rotation.z=.44;sD.add(STAR);let starT=9,starNext=1;
 
 /* ---------- 液体 ---------- */
-const LU={tScene:{value:RT.texture},uRect:{value:new THREE.Vector4(0,0,1,1)},uFillY:{value:BY0},uTint:{value:new THREE.Color(1,1,1)},uTintB:{value:new THREE.Color(1,1,1)},uBY0:{value:BY0+.03},uTintAmt:{value:.05},uTime:{value:0},uWob:{value:0},uTop:{value:0},uAlpha:{value:0}};
+const LU={tScene:{value:RT.texture},tPrev:{value:RT2.texture},uMix:{value:1},uStir:{value:0},uSpin:{value:1},uSC:{value:new THREE.Vector2(.5,.5)},uDyeC:{value:new THREE.Color(1,1,1)},uDyeT:{value:99},uRect:{value:new THREE.Vector4(0,0,1,1)},uFillY:{value:BY0},uTint:{value:new THREE.Color(1,1,1)},uTintB:{value:new THREE.Color(1,1,1)},uBY0:{value:BY0+.03},uTintAmt:{value:.05},uTime:{value:0},uWob:{value:0},uTop:{value:0},uAlpha:{value:0}};
 const LV=`varying vec3 vVN;varying vec3 vW;varying vec3 vL;void main(){vL=position;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vVN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*viewMatrix*w;}`;
-const LF=`uniform sampler2D tScene;uniform vec4 uRect;uniform float uFillY,uTintAmt,uTime,uWob,uTop,uAlpha,uBY0;uniform vec3 uTint,uTintB;varying vec3 vVN;varying vec3 vW;varying vec3 vL;
+const LF=`uniform sampler2D tScene,tPrev;uniform vec4 uRect;uniform float uFillY,uTintAmt,uTime,uWob,uTop,uAlpha,uBY0,uMix,uStir,uSpin,uDyeT;uniform vec2 uSC;uniform vec3 uTint,uTintB,uDyeC;varying vec3 vVN;varying vec3 vW;varying vec3 vL;${NZ}
+float fbL(vec2 p){float s=0.,a=.5;for(int i=0;i<3;i++){s+=a*vn(p);p=p*2.03+vec2(5.2,1.3);a*=.5;}return s;}
+vec2 rotL(vec2 p,float a){float c=cos(a),s=sin(a);return vec2(c*p.x-s*p.y,s*p.x+c*p.y);}
 vec3 sat(vec3 c){float l=dot(c,vec3(.299,.587,.114));return max(mix(vec3(l),c,1.25),0.);}
 void main(){if(uTop<.5&&vW.y>uFillY)discard;vec3 n=normalize(vVN);if(!gl_FrontFacing)n=-n;float fr=pow(1.-clamp(abs(n.z),0.,1.),2.);
 float hh=clamp((vW.y-uBY0)/max(uFillY-uBY0,.02),0.,1.);vec3 tn=uTop>.5?uTintB:mix(uTint,uTintB,smoothstep(.2,.9,hh));
 vec2 uv=(gl_FragCoord.xy-uRect.xy)/(uRect.zw*2.)+.5;uv-=n.xy*.05*fr*(1.-uTop);
 uv.x+=sin(uv.y*26.+uTime*2.1)*.004*uWob;uv.y+=sin(uv.x*19.+uTime*2.7)*.004*uWob;
+vec2 sc=mix(uSC,vec2(.5,.5),.5),dv=uv-sc;float rr=length(dv*vec2(1.,1.2)),ang=uSpin*uStir*1.7*exp(-rr*3.);vec2 u0=uv;
+uv=sc+rotL(dv,ang);uv+=(vec2(fbL(uv*3.+uTime*.07),fbL(uv*3.+7.-uTime*.06))-.5)*(.005+.032*uStir);uv=mix(uv,clamp(uv,.02,.98),.85);
 vec3 c=min(sat(texture2D(tScene,clamp(uv,.001,.999)).rgb),vec3(.97));
+if(uMix<.999){vec2 pu=sc+rotL(u0-sc,ang*1.5+uSpin*.5*(1.-uMix));pu=clamp(pu,.02,.98);pu+=(vec2(fbL(pu*2.5-uTime*.1),fbL(pu*2.5+3.+uTime*.1))-.5)*.06*(1.-uMix);
+ vec3 cp=min(sat(texture2D(tPrev,clamp(pu,.001,.999)).rgb),vec3(.97));
+ float mb=fbL(u0*vec2(2.2,3.4)+vec2(fbL(u0*3.+uTime*.25)*2.2,uTime*.18)),band=.5+.5*sin(u0.y*8.+mb*6.+uSpin*u0.x*3.);
+ float v=band*.45+mb*.55,th=uMix*1.25-.12,m=smoothstep(v-.07,v+.07,th);
+ float edge=(1.-abs(m*2.-1.));c=mix(cp,c,m)+uDyeC*edge*.10*(1.-uMix);}
+if(uDyeT<6.){vec2 dq=(u0-uSC)*vec2(1.,1.25);float t=uDyeT,r=.06+.42*(1.-exp(-t*.9));float q=length(dq)+(fbL(u0*5.+vec2(0.,-t*.25))-.5)*.24;
+ float conc=(1.-smoothstep(r*.4,r,q))*exp(-t*.55)*(.5+.9*fbL(u0*9.-vec2(t*.1,t*.3)));c=mix(c,c*(.5+uDyeC*.9)+uDyeC*.14,clamp(conc,0.,1.)*.7);}
 float inv=smoothstep(.5,.85,fr)*(1.-smoothstep(-.6,-.25,n.y))*(1.-uTop);
 vec2 fuv=vec2(.5+(uv.x-.5)*.9,1.-uv.y*.85);c=mix(c,sat(texture2D(tScene,clamp(fuv,.001,.999)).rgb)*1.05,inv*.85);
 c=mix(c,tn,uTintAmt*.25);c+=tn*pow(fr,2.)*.07+vec3(.85,.92,1.)*pow(fr,4.)*.12;c+=tn*(1.-hh)*(1.-hh)*.08*(1.-uTop);
@@ -724,7 +736,12 @@ const ring=new THREE.Mesh(new THREE.RingGeometry(.86,1,48),new THREE.MeshBasicMa
 /* ぽとん（一滴と、材料ごとのしぶき） */
 const DROPS=[],SPLS=[],dropGeo=new THREE.SphereGeometry(.042,16,12);
 const SPLP={sky:{tex:dotTex,n:14,v:[.5,1],g:-4.5,s:.05,life:.9,sw:0},spring:{tex:petalTex,n:12,v:[.25,.55],g:-.3,s:.08,life:1.8,sw:.5},summer:{tex:dotTex,n:20,v:[.1,.4],g:.5,s:.035,life:1.5,sw:.15},autumn:{tex:leafTex,n:9,v:[.3,.6],g:-.7,s:.08,life:1.6,sw:.35},winter:{tex:sparkTex,n:16,v:[.08,.3],g:-.05,s:.05,life:2,sw:.2},land:{tex:dotTex,n:10,v:[.3,.7],g:-3.5,s:.04,life:.8,sw:0}};
-function dropInk(c,x,cb,snd){const m=new THREE.Mesh(dropGeo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.95,depthWrite:false}));m.renderOrder=4;scene.add(m);DROPS.push({m,y:LU.uFillY.value+1.7,vy:-.4,x,cb,snd});}
+/* かき混ぜ：落ちる直前の景色を写し取り、新しい景色とマーブル模様で混ぜながら入れ替える */
+let mixT=99,stirV=0;
+function mixStart(x,y,c){renderer.setRenderTarget(RT2);renderer.render(sD,camD);renderer.setRenderTarget(null);mixT=0;LU.uMix.value=0;stirV=1;LU.uSpin.value=Math.random()<.5?-1:1;
+ const v=new THREE.Vector3(x,y,.02).project(camera),bw=W*PR,bh=H*PR,R=LU.uRect.value;LU.uSC.value.set(((v.x*.5+.5)*bw-R.x)/(R.z*2)+.5,((v.y*.5+.5)*bh-R.y)/(R.w*2)+.5);
+ if(c)LU.uDyeC.value.copy(c);LU.uDyeT.value=0;}
+function dropInk(c,x,cb,snd){const m=new THREE.Mesh(dropGeo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.95,depthWrite:false}));m.renderOrder=4;scene.add(m);DROPS.push({m,y:LU.uFillY.value+1.7,vy:-.4,x,cb,snd,c});}
 function splash(x,y,c,st){const P=SPLP[st]||SPLP.sky,n=P.n,p=new Float32Array(n*3),v=[];for(let i=0;i<n;i++){const a=Math.random()*6.283,r=.02+Math.random()*.05,sp=P.v[0]+Math.random()*(P.v[1]-P.v[0]);p[i*3]=x+Math.cos(a)*r;p[i*3+1]=y;p[i*3+2]=.02+Math.sin(a)*r;v.push(Math.cos(a)*sp*.35,sp,Math.sin(a)*sp*.35,Math.random()*6);}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));const pt=new THREE.Points(g,new THREE.PointsMaterial({size:P.s,map:P.tex,color:c,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));pt.renderOrder=6;scene.add(pt);SPLS.push({pt,v,P,t:0});}
 
@@ -890,7 +907,7 @@ const SFXG={day:2.6,dusk:1.6,night:1.1,spring:2.6,summer:3.6,autumn:2.2,winter:2
 function sDrop(a,out,t,f){xo(a,out,t,f*.55,'sine',.22,.002,.12,f*1.15,.07);xo(a,out,t+.02,f,'sine',.07,.005,.9);xn(a,out,t,'bandpass',2500,1800,2,.05,.002,.05);}
 function sfx(slot,k){const a=ac();if(!a||muted)return;const t=a.currentTime+.01,out=sfxBus(a,.9),f=MIDF(sfxNote());sDrop(a,out,t,slot==='land'?f/2:f);const fn=SFX[k];if(fn)fn(a,sfxBus(a,.9*(SFXG[k]||2)),t+.06,f);}
 function act(slot,k){busyUntil=T+.55;readyAt=T+1.6;
- if(slot==='fin'){pour={t:0,c:col(FIN.find(i=>i.k===k).c)};sPour();wob=.6;ringT=0;setTimeout(()=>{D.fin=k;},320);return;}
+ if(slot==='fin'){pour={t:0,c:col(FIN.find(i=>i.k===k).c)};sPour();wob=.6;ringT=0;setTimeout(()=>{mixStart(-.06,LU.uFillY.value,col(FIN.find(i=>i.k===k).c));D.fin=k;},320);return;}
  if(slot==='land'){dropGarnish(k);return;}
  pourOrder=pourOrder.filter(x=>x!==slot);pourOrder.push(slot);const c=col(ING[slot].find(i=>i.k===k).c);
  dropInk(c,-.05,y=>{splash(-.05,y,c,slot==='sky'?'sky':k);if(sel[slot]!==k)return;recomputeFill();setRV(slot,k,c);D[slot]=k;},()=>sfx(slot,k));}
@@ -1064,13 +1081,14 @@ function update(dt){
  pool.material.color.copy(tint);pool.material.opacity=fillCur*.55;glowLight.color.copy(tint);glowLight.intensity=fillCur*3;
  // 注ぐ
  if(pour){pour.t+=dt;const a=pour.t<.1?pour.t/.1:pour.t>.8?Math.max(0,1-(pour.t-.8)/.2):1;stream.material.color.copy(pour.c);stream.material.opacity=a*.9;const top=3.6,bot=Math.max(BY0+.05,fy);stream.scale.y=top-bot;stream.position.set(-.06,(top+bot)/2,.02);if(pour.t>1){pour=null;stream.material.opacity=0;}}
- for(let i=DROPS.length-1;i>=0;i--){const d=DROPS[i];d.vy-=9*dt;d.y+=d.vy*dt;const sy=1+Math.min(-d.vy*.12,.7),sx=1/Math.sqrt(sy);d.m.scale.set(sx,sy,sx);d.m.position.set(d.x,d.y+.042*sy,.02);const s=fillCur>.02?fy:BY0+.06;if(d.y<=s){scene.remove(d.m);d.m.material.dispose();DROPS.splice(i,1);(d.snd||sPlop)();wob=Math.max(wob,1);ringT=0;d.cb(s);}}
+ for(let i=DROPS.length-1;i>=0;i--){const d=DROPS[i];d.vy-=9*dt;d.y+=d.vy*dt;const sy=1+Math.min(-d.vy*.12,.7),sx=1/Math.sqrt(sy);d.m.scale.set(sx,sy,sx);d.m.position.set(d.x,d.y+.042*sy,.02);const s=fillCur>.02?fy:BY0+.06;if(d.y<=s){scene.remove(d.m);d.m.material.dispose();DROPS.splice(i,1);(d.snd||sPlop)();wob=Math.max(wob,1);ringT=0;mixStart(d.x,s,d.c);d.cb(s);}}
  for(let i=SPLS.length-1;i>=0;i--){const s=SPLS[i],P=s.P,v=s.v,a=s.pt.geometry.attributes.position.array;s.t+=dt;for(let j=0;j<a.length/3;j++){v[j*4+1]+=P.g*dt;a[j*3]+=(v[j*4]+Math.sin(T*3+v[j*4+3])*P.sw)*dt;a[j*3+1]+=v[j*4+1]*dt;a[j*3+2]+=v[j*4+2]*dt;}s.pt.geometry.attributes.position.needsUpdate=true;s.pt.material.opacity=Math.max(0,1-s.t/P.life);if(s.t>P.life){scene.remove(s.pt);s.pt.geometry.dispose();s.pt.material.dispose();SPLS.splice(i,1);}}
+ mixT+=dt;{const e=Math.min(1,mixT/2.4);LU.uMix.value=e*e*(3-2*e);}stirV*=Math.exp(-dt*.85);LU.uStir.value=stirV;LU.uDyeT.value+=dt;
  ringT=Math.min(1,ringT+dt/.7);ring.material.opacity=(1-ringT)*.5*(fillCur>.02?1:0);const rr=innerR(fy)*(.15+ringT*.8);ring.scale.set(rr,1,rr);ring.position.y=fy+.003;
  // ガーニッシュ
  const surf=fillCur>.02?fy:BY0+.06;
  if(garn){const g=garn,gx=Math.min(.3,innerR(surf)*.55);
-  if(g.st==='fall'){g.vy-=7*dt;g.y+=g.vy*dt;if(g.y<=surf){g.y=surf;g.st='float';sfx('land',g.k);wob=Math.max(wob,.7);ringT=0;const lc=col(ING.land.find(i=>i.k===g.k).c);splash(gx,surf,lc,'land');if(sel.land===g.k){setRV('land',g.k,lc);D.land=g.k;}}}
+  if(g.st==='fall'){g.vy-=7*dt;g.y+=g.vy*dt;if(g.y<=surf){g.y=surf;g.st='float';sfx('land',g.k);wob=Math.max(wob,.7);ringT=0;const lc=col(ING.land.find(i=>i.k===g.k).c);splash(gx,surf,lc,'land');mixStart(gx,surf,lc);if(sel.land===g.k){setRV('land',g.k,lc);D.land=g.k;}}}
   else g.y=lerp(g.y,surf-.02+Math.sin(T*1.6)*.008,1-Math.exp(-dt*5));
   g.m.position.set(gx,g.y,.1);g.m.rotation.y=g.a+T*.15;}
  dying=dying.filter(g=>{const s=g.m.scale.x-dt*3;if(s<=0){scene.remove(g.m);return false;}g.m.scale.setScalar(s);return true;});
