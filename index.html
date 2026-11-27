@@ -41,7 +41,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #night{color:var(--mute);font-size:13px;white-space:nowrap;margin-left:auto}
 .ib.on{border-color:var(--accent);color:var(--accent)}
 .ib{pointer-events:auto;height:40px;min-width:44px;padding:0 12px;border-radius:20px;border:1px solid var(--line);background:rgba(11,17,36,.55);color:var(--ink);font:500 13px/1 "Zen Kaku Gothic New",sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);white-space:nowrap}
-.order{pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;transition:opacity .5s,transform .5s}
+.order{max-height:46vh;overflow-y:auto;overscroll-behavior:contain;pointer-events:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;transition:opacity .5s,transform .5s}
 .order.out{opacity:0;transform:translateY(-6px)}
 .fold{pointer-events:auto;flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--mute);cursor:pointer;display:grid;place-items:center;padding:0}
 .fold::before{content:'';width:8px;height:8px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:translateY(2px) rotate(45deg)}
@@ -73,9 +73,11 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .chip{height:50px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;padding:0 2px;position:relative;transition:background .3s,border-color .3s,box-shadow .3s}
 .chip b{font-size:13px;font-weight:700;white-space:nowrap;line-height:1.25;letter-spacing:-.02em}
 .chip span{font-size:12px;color:var(--mute);line-height:1.25;white-space:nowrap;letter-spacing:-.03em}
-.chip i{position:absolute;left:6px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--c)}
+.chip i{position:absolute;left:4px;top:4px;width:6px;height:6px;border-radius:50%;background:var(--c)}
 .chip.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--c) 40%,transparent)}
-.acts{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px;margin-top:2px}
+.acts{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-top:2px}
+.acts .btn{white-space:nowrap;padding:0 8px}
+@media (max-width:380px){.acts .btn{font-size:14px;padding:0 4px}.chip b{letter-spacing:-.04em}h1{font-size:17px;letter-spacing:.06em;flex:none}.bar{gap:6px}.bar .ib{padding:0 9px;min-width:40px;font-size:12.5px}}
 .btn{height:46px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font:700 15px/1 "Zen Kaku Gothic New",sans-serif;cursor:pointer;pointer-events:auto;padding:0 14px}
 .btn.pri{background:var(--accent);color:#2a1414;border-color:transparent}
 .btn:disabled{opacity:.38;cursor:default}
