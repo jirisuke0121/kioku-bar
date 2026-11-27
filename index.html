@@ -948,7 +948,7 @@ function sfxPlay(k){const a=ac();if(!a||muted||!SFX[k])return;SFX[k](a,sfxBus(a,
 function hush(){if(!BGM||!AC)return;const g=BGM.out.gain,t=AC.currentTime,v=g.value;g.cancelScheduledValues(t);g.setValueAtTime(v,t);g.linearRampToValueAtTime(v*.12,t+.5);g.linearRampToValueAtTime(v,t+3.2);}
 function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.mimg img'),fa=el.querySelector('.mf.a'),fb=el.querySelector('.mf.b'),ln=el.querySelector('.mline'),wh=el.querySelector('.mwho');
  const steps=[...o.scenes.map(s=>({...s,who:o.who})),{f:0,m:1,who:'マスター',t:o.after[0]},{f:0,who:o.who,t:o.after[1]}];
- const real=!!o.mem;im.src=real?o.mem.src:img;el.classList.remove('glow','fb','master','wait');ln.textContent='';
+ let real=!!o.mem;im.src=real?o.mem.src:img;el.classList.remove('glow','fb','master','wait');ln.textContent='';
  const place=at=>{const b=el.querySelector('.mimg').getBoundingClientRect(),iw=im.naturalWidth||1,ih=im.naturalHeight||1,k=Math.max(b.width/iw,b.height/ih)*at[2],w=iw*k,h=ih*k;im.style.width=iw+'px';im.style.height=ih+'px';
   const tx=Math.min(0,Math.max(b.width-w,b.width/2-at[0]*w)),ty=Math.min(0,Math.max(b.height-h,b.height*.36-at[1]*h));im.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;};
  let i=-1,tm=null,typing=false,closed=false,cur=0,useB=false;
@@ -960,7 +960,7 @@ function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.m
   ln.textContent='';typing=true;let j=0;tm=setInterval(()=>{ln.textContent=s.t.slice(0,++j);if(j>=s.t.length)finishType();},42);};
  fa.src=faceUrl(o,1);cur=1;
  const start=()=>{place([.5,.5,1]);requestAnimationFrame(()=>{el.classList.add('on');setTimeout(go,1300);});};
- if(im.complete&&im.naturalWidth)start();else{im.onload=()=>{im.onload=null;start();};}
+ if(!real&&o.key){let w=0;const t=setInterval(()=>{if(o.mem||++w>16){clearInterval(t);real=!!o.mem;im.src=real?o.mem.src:img;if(im.complete&&im.naturalWidth)start();else im.onload=()=>{im.onload=null;start();};}},100);}else if(im.complete&&im.naturalWidth)start();else{im.onload=()=>{im.onload=null;start();};}
  el.onclick=()=>{if(closed||i<0)return;if(typing){finishType();return;}go();};}
 /* 提供した瞬間：グラスを覗いたお客さんの表情が変わり、あの日の気持ちを語る */
 function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector('.rf.a'),fb=el.querySelector('.rf.b'),ln=el.querySelector('.rline');
@@ -972,8 +972,8 @@ function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector
 function playTalk(lines,who){const box=$('talk');let i=0;const step=()=>{if(i>=lines.length)return;const isM=i%2===0,p=document.createElement('p'),sm=document.createElement('small'),sp=document.createElement('span');p.className=isM?'m':'';sm.textContent=isM?'マスター':who;p.append(sm,sp);box.append(p);const t=lines[i++];let j=0;const tm=setInterval(()=>{j++;sp.textContent='「'+t.slice(0,j)+(j>=t.length?'」':'');if(j>=t.length){clearInterval(tm);setTimeout(step,500);}},38);};step();}
 function next(){if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.idx++;if(S.idx>=S.queue.length)setTimeout(summary,700);else setTimeout(showCustomer,800);}
 function summary(){const tot=S.results.reduce((a,r)=>a+r.n,0),nw=S.results.filter(r=>r.isNew).length;
- $('resultCard').innerHTML=`<h2>${S.night}夜目、閉店です</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
- $('result').hidden=false;$('sumBook').onclick=openBook;$('nightBtn').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;S.night++;saveSV();startNight();};}
+ $('resultCard').innerHTML=PROTOMODE?`<h2>今夜は、ここまで</h2><p class="lead" style="margin:4px 0">試作版は、3人のお客さんでした。</p><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="nightBtn">もう一度、最初から</button></div>`:`<h2>${S.night}夜目、閉店です</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
+ $('result').hidden=false;if($('sumBook'))$('sumBook').onclick=openBook;$('nightBtn').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;S.night++;saveSV();startNight();};}
 function openBook(){const keys=[];ING.sky.forEach(a=>ING.season.forEach(b=>ING.land.forEach(c=>keys.push([a.k,b.k,c.k]))));const got=keys.filter(k=>BOOK[k.join('-')]).length;
  $('bookCard').innerHTML=`<h2>図鑑</h2><p style="color:var(--mute);margin:0">見つけた一杯 ${got} / ${keys.length}</p><div class="grid">${keys.map(k=>{const b=BOOK[k.join('-')];return b?`<div class="cell"><img src="${b.img}" alt=""><span>${esc(b.name)}</span></div>`:'<div class="cell">？</div>';}).join('')}</div><div class="cardacts"><button class="btn pri" id="bookClose">閉じる</button></div>`;
  $('book').hidden=false;$('bookClose').onclick=()=>closeModal('book');}
