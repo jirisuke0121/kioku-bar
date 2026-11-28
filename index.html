@@ -130,6 +130,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #mem .mfaces{transition:opacity .6s}#mem.master .mfaces{opacity:.4}#mem.master .mwho{color:var(--mute)}#mem.master .mline{color:var(--mute)}
 #mem .mhint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 20px);text-align:center;font-size:12px;color:var(--mute);margin:0;opacity:0;transition:opacity .5s}
 #mem.wait .mhint{opacity:1}
+#mem.hazy .mimg img{filter:blur(9px) saturate(.45) brightness(.78)!important}#mem.hazy .mimg::before{content:'';position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at 50% 40%,rgba(200,210,235,.18),rgba(10,14,30,.45));pointer-events:none}
 #mem.gift .mfaces{display:none}#mem.gift .mbox{grid-template-columns:1fr;text-align:center}#mem.gift .mline{font-size:21px;font-weight:700;min-height:4.5em;letter-spacing:.04em}#mem.gift .mwho{color:var(--accent);letter-spacing:.12em}
 @media (max-height:640px){#mem .mline{font-size:15px;min-height:6.6em}}
 #react{position:fixed;inset:0;z-index:7;display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .7s ease;cursor:pointer}
@@ -386,16 +387,11 @@ const MAIN_STORIES=[
 ];
 /* ---------- 実験版（URLに ?lab）：言葉を聞き返し、つまみを手で合わせる ---------- */
 const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].gift,sky:'day',season:'winter',land:'rail',lab:1,
- text:'異動の話が来たんです。受けるつもりでいます。……なのに、返事だけができなくて。昼休みになると、あのストーブの前の席が、ちらつくんです。',
- goal:{sky:.1,season:.9,land:.85},
- asks:[
-  {w:'異動の話',slot:'land',c:.85,r:.09,q:'いつ頃のお話です',a:'来月です。いつもの毎日の中に、急に分かれ目が来たみたいで。'},
-  {w:'受けるつもり',slot:'sky',c:.1,r:.12,q:'もう、迷ってはいないんですね',a:'ええ。決めたら、気持ちはすっと軽くなりました。……ほんの少しだけ、苦いものも残っていますけど。'},
-  {w:'返事だけができなくて',slot:'land',c:.85,r:.15,q:'何が、引き留めているんでしょう',a:'行くか残るか、ではないんです。その手前で、足が止まっている感じで。'},
-  {w:'ストーブの前の席',slot:'season',c:.9,r:.1,q:'どんな席なんです',a:'昼休みに、みんなで囲むんです。たいした話はしないのに、あそこだけ、あったかくて。'},
-  {w:'ちらつく',slot:'season',c:.9,r:.07,q:'思い出すと、どんな気持ちに',a:'あったかいのに……もうすぐ過ぎていくんだな、とも思うんです。'}],
+ text:'異動の話が来て、受けるつもりなんです。決めたら、気持ちはすっと軽くなって。……ほんの少しだけ、苦いものは残ってますけど。いつもの毎日の中に、急に分かれ目が来たみたいで、返事だけができなくて。昼休みにみんなで囲む、あのストーブの前の席がちらつくんです。あったかいのに、もうすぐ過ぎていくんだなって。',
+ goal:{sky:.1,season:.9,land:.85},asks:[],
+ clue:{sky:'決めたら、気持ちはすっと軽くなって。……ほんの少しだけ、苦いものは残ってますけど',season:'あったかいのに、もうすぐ過ぎていくんだなって',land:'いつもの毎日の中に、急に分かれ目が来たみたいで'},
  exact:'すっと軽いのに、ほんの少し苦い。あったかいのに、もうすぐ過ぎていく。……全部、そのままです。',
- missHint:{sky:['もっと、すっきり晴れていた気がします。','もう少しだけ、苦みが混じっていた気がします。'],season:['もう少し、名残惜しさが混じっていた気がします。','もっと、あたたかかった気がするんです。'],land:['もう少し、いつもの日に近かった気がします。','もっと、どちらへ進むか迷う場所だった気がして。']},
+ hazy:[{f:1,at:[.5,.5,1],t:'……あれ。この空、どこかで……'},{f:2,at:[.46,.62,1.5],t:'寒い朝……だった気がするのに。そこから先が、出てこない。'},{f:2,at:[.5,.45,1.15],t:'……思い出せそうで、思い出せなくて。でも、ありがとうございました。また、来ますね。'}],
  scenes:MAIN_STORIES[0].scenes,after:MAIN_STORIES[0].after};
 const FIN=[{k:'rain',n:'雨上がりトニック',e:'雨',c:'#9fb6d0'},{k:'fire',n:'花火リキュール',e:'花火',c:'#ff6a8a'},{k:'star',n:'流れ星シュガー',e:'流れ星',c:'#fff1a8'}];
 const FINW={rain:'雨',fire:'花火',star:'流れ星'};
@@ -936,7 +932,7 @@ function labW(A){if(LB.v.sky==null||!D.sky)return 0;const o=S.queue[S.idx];if(!o
  else{const sl=A.slot,key=A.replaces[0];if(LB.v[sl]==null||!D[sl])return 0;pos=base*labPl(sl,key);ans=A.tm===o.sky&&key===o[sl]?1:0;}
  return pos+(ans-pos)*k;}
 let LT=null;
-function labReset(){LB.zn={};LB.k=0;LB.won=false;LB.exact=false;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
+function labReset(){LB.out=null;LB.zn={};LB.k=0;LB.won=false;LB.exact=false;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
 function labColor(slot,v){const ks=LABD[slot],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),a=col(FEELW(ks[i]).c),b=col(FEELW(ks[i+1]).c);return a.clone().lerp(b,x-i);}
 function labTint(){if(!LAB_MODE)return;if(LB.v.sky!=null&&sel.sky){tintT.copy(labColor('sky',LB.v.sky));tintBT.copy(LB.v.season!=null&&sel.season?labColor('season',LB.v.season):tintT);}}
 function labRows(){const o=S.queue[S.idx];if(!o)return;
@@ -960,19 +956,20 @@ function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;
  $('serveBtn').disabled=!(S.active&&sel.sky&&sel.season&&sel.land);$('serveBtn').classList.remove('hit');labTint();labGuide();}
 function labTone(){if(LT&&AC)LT.g.gain.setTargetAtTime(0,AC.currentTime,.1);}
 function labGuide(){const el=$('guide');if(!S.active||saying){el.hidden=true;return;}const n=['sky','season','land'].filter(s=>LB.v[s]!=null).length;
- el.textContent=n===0?'（話から今の気持ちを読んで、つまみで一杯を作る）':n<3?'（残りのつまみも、気持ちに合わせて）':LB.serves?'（さっきの言葉を手がかりに、もう一杯）':'（この一杯で、どうだろう）';el.style.whiteSpace='nowrap';el.hidden=false;}
-function labMark(){if(!LAB_MODE||saying)return;const o=S.queue[S.idx];if(!o||!o.asks||!S.active)return;let h=esc(o.text);o.asks.forEach((k,i)=>{h=h.replace(esc(k.w),`<span class="kw${LB.asked.includes(i)?' asked':''}" data-i="${i}" role="button" tabindex="0">${esc(k.w)}</span>`);});$('memory').innerHTML=h;
+ el.textContent=n===0?'（話から今の気持ちを読んで、つまみで一杯を作る）':n<3?'（残りのつまみも、気持ちに合わせて）':'（出せるのは一度きり。この一杯で、どうだろう）';el.style.whiteSpace='nowrap';el.hidden=false;}
+function labMark(){if(!LAB_MODE||saying)return;const o=S.queue[S.idx];if(!o||!o.asks||!o.asks.length||!S.active){if(LAB_MODE)$('qa').hidden=true;return;}let h=esc(o.text);o.asks.forEach((k,i)=>{h=h.replace(esc(k.w),`<span class="kw${LB.asked.includes(i)?' asked':''}" data-i="${i}" role="button" tabindex="0">${esc(k.w)}</span>`);});$('memory').innerHTML=h;
  const left=3-LB.asked.length,qa=$('qa');qa.innerHTML=`<p class="ql">${left>0?`気になる言葉をタップすると、聞き返せます（あと${left}回）`:'これ以上は、聞けそうにない。'}</p>`+LB.asked.map(i=>`<p class="q">マスター「${esc(o.asks[i].q)}」</p><p class="a">「${esc(o.asks[i].a)}」</p>`).join('');qa.hidden=false;}
 function labAsk(i){const o=S.queue[S.idx];if(!S.active||LB.asked.includes(i)||LB.asked.length>=3)return;LB.asked.push(i);tone(880,.25,.03);labMark();labRows();const c=$('order');c.scrollTop=c.scrollHeight;}
 $('memory').addEventListener('click',e=>{const k=e.target.closest('.kw');if(!k||!LAB_MODE)return;e.stopPropagation();labAsk(+k.dataset.i);});
-function labServe(){const o=S.queue[S.idx];if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;LB.serves++;
- const ok={},S3=['sky','season','land'];S3.forEach(s=>ok[s]=labZone(s)===o[s]);const n=S3.filter(s=>ok[s]).length;
- if(n===3){LB.exact=S3.every(s=>Math.abs(LB.v[s]-o.goal[s])<=.08);LB.won=true;S.active=false;labLive();$('guide').hidden=true;$('serveBtn').disabled=true;setTimeout(startRecall,400);return;}
- let w=null,wd=0;S3.forEach(s=>{if(ok[s])return;const d=LB.v[s]-o.goal[s];if(!w||Math.abs(d)>Math.abs(wd)){wd=d;w=s;}});
- showReaction(o,2,snap(),(n===2?'近い……。':'……何か、思い出しかけたのに。')+o.missHint[w][wd>0?0:1],()=>{labGuide();});}
-function labCard(){const o=S.queue[S.idx],q=LB.asked.length,sv=LB.serves,ex=LB.exact;
- const rank=ex&&q===0&&sv===1?'言葉ひとつ聞かずに、ぴったりの一杯':ex&&sv===1?'ぴったりの一杯':ex?'粘って、ぴったりの一杯':sv===1?'一杯で、思い出させた':'粘り強いマスター';
- albumAdd(o.key);$('resultCard').innerHTML=`<h2>思い出の一杯</h2><p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p><p class="lead" style="margin:4px 0;font-size:15px">${rank}</p>${ex&&o.exact?`<p class="reply" style="font-size:15px">「${esc(o.exact)}」</p>`:''}<p class="mcount">聞き返した回数 ${q} / 3　・　出した杯 ${sv}</p><p class="memo" style="text-align:center">${ex?'聞き返す回数を減らして、話だけで読み切れるか。もう一度、試せます。':'聞き返すと、もっと細かな気持ちまで分かります。ぴったりの一杯を目指して、もう一度。'}</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
+function labServe(){const o=S.queue[S.idx];if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;const S3=['sky','season','land'];
+ const ok=S3.every(s=>labZone(s)===o[s]);LB.exact=ok&&S3.every(s=>Math.abs(LB.v[s]-o.goal[s])<=.08);LB.out=LB.exact?'exact':ok?'ok':'hazy';LB.won=ok;
+ S.active=false;labLive();$('guide').hidden=true;$('serveBtn').disabled=true;setTimeout(startRecall,400);}
+function labTxt(s,v){const ks=LABD[s],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),f=x-i,A=FEELW(ks[i]).t,B=FEELW(ks[i+1]).t;if(f<.1)return `<b>${esc(A)}</b>`;if(f>.9)return `<b>${esc(B)}</b>`;
+ let b=Math.min(9,Math.max(1,Math.round(f*10)));const fa=f<.5;if(b===5)b=fa?4:6;const a=10-b;return `${fa?'<b>':''}${esc(A)} ${a}${fa?'</b>':''} : ${fa?'':'<b>'}${b} ${esc(B)}${fa?'':'</b>'}`;}
+function labCard(){const o=S.queue[S.idx],out=LB.out;if(out!=='hazy')albumAdd(o.key);
+ const head=out==='exact'?'ぴったりの一杯':out==='ok'?'記憶が、よみがえった':'まだ、ぼんやりと';
+ const rows=['sky','season','land'].map(s=>{const ok=labZone(s)===o[s],ex=Math.abs(LB.v[s]-o.goal[s])<=.08;return `<div class="rd ${ok?'ok':'ng'}"><span class="rl">${LAB_L[s]}</span><div><p class="rf1"><span class="mk">${ex?'◎':ok?'○':'×'}</span>本当は ${labTxt(s,o.goal[s])}</p><p class="ry">あなたは ${labTxt(s,LB.v[s])}</p><p class="rq">「${esc(o.clue[s])}」</p></div></div>`;}).join('');
+ $('resultCard').innerHTML=`<h2>${head}</h2>${out!=='hazy'?`<p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p>`:'<p class="lead" style="margin:4px 0;font-size:15px">お話のどこに、手がかりがあったか</p>'}${out==='exact'&&o.exact?`<p class="reply" style="font-size:15px">「${esc(o.exact)}」</p>`:''}<div class="reads">${rows}</div><p class="memo" style="text-align:center">${out==='exact'?'言葉の細かいところまで、読み切りました。':out==='ok'?'◎は、言葉の細かなニュアンスまで合った段です。全部◎で、ぴったりの一杯になります。':'もう一度、お話を読み直して作れます。'}</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
  $('result').hidden=false;$('labAgain').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;stopTheme();silT=0;clearGlass();setTimeout(showCustomer,800);};}
 function drawRows(){if(LAB_MODE){labRows();return;}const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(ARCHIVE_MODE&&S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
  $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));guide();}
@@ -1066,7 +1063,7 @@ function startRecall(){moodStop(1.2);recall=1;gaze=true;$('hud').classList.add('
  const fin=()=>{if(done)return;done=true;recallSkip=null;$('gazeHint').classList.remove('on');const end=()=>{doServe();recall=0;gaze=false;$('hud').classList.remove('gaze');};if(isFin)setTimeout(()=>showFinale(o,end),900);else end();};
  {$('gazeHint').textContent='タップで飛ばす';$('gazeHint').classList.add('on');recallSkip=()=>{re.forEach(L=>{L.delay=0;L.rev=1;});setTimeout(fin,250);};}
  const chk=()=>{if(done)return;if(re.every(L=>L.rev>.98)&&performance.now()-t0>2600)setTimeout(fin,500);else if(performance.now()-t0>9000)fin();else setTimeout(chk,150);};setTimeout(chk,1500);}
-function doServe(){if(LAB_MODE){const o=S.queue[S.idx];showMemory(o,3,snap(),'',labCard);return;}const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.season===o.season,land:sel.land===o.land},n=m.sky+m.season+m.land;
+function doServe(){if(LAB_MODE){const o=S.queue[S.idx],img=snap();if(LB.out==='hazy')showMemory({...o,scenes:o.hazy,after:null,gift:null,hazy:true},1,img,'',labCard);else showMemory(o,3,img,'',labCard);return;}const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.season===o.season,land:sel.land===o.land},n=m.sky+m.season+m.land;
  const img=snap(),key=`${sel.sky}-${sel.season}-${sel.land}`,name=cname(sel.sky,sel.season,sel.land,sel.fin),isNew=!BOOK[key];
  if(isNew){BOOK[key]={img,name};saveBook();}[sel.sky,sel.season,sel.land].forEach(k=>{if(!S.known.includes(k))S.known.push(k);});saveSV();let story='';if(o.reg&&n===3){S.eps[o.reg]++;const r=REGS.find(x=>x.id===o.reg);if(S.eps[o.reg]>=r.eps.length){if(!S.unlocked.includes(r.reward))S.unlocked.push(r.reward);const f=FIN.find(x=>x.k===r.reward);story=`${r.who}の物語を見届けました。<br>新しいお酒「${f.n}」が棚に並びます`;}else story=`${r.who}の話が、次の夜に続きます`;saveSV();}else if(o.reg)story='★3つで、話の続きが聞けます';S.results.push({img,n,name,isNew});sClink();
  const fresh=!!(o.scenes&&n===3&&!ARCHIVE_MODE&&albumAdd(o.key));
@@ -1076,14 +1073,14 @@ function doServe(){if(LAB_MODE){const o=S.queue[S.idx];showMemory(o,3,snap(),'',
 function sfxPlay(k){const a=ac();if(!a||muted||!SFX[k])return;SFX[k](a,sfxBus(a,.9*(SFXG[k]||2)),a.currentTime+.05,MIDF(72));}
 function hush(){if(!BGM||!AC)return;const g=BGM.out.gain,t=AC.currentTime,v=g.value;g.cancelScheduledValues(t);g.setValueAtTime(v,t);g.linearRampToValueAtTime(v*.12,t+.5);g.linearRampToValueAtTime(v,t+3.2);}
 function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.mimg img'),fa=el.querySelector('.mf.a'),fb=el.querySelector('.mf.b'),ln=el.querySelector('.mline'),wh=el.querySelector('.mwho');
- const steps=[...o.scenes.map(s=>({...s,who:o.who})),{f:0,m:1,who:'マスター',t:o.after[0]},{f:0,who:o.who,t:o.after[1]}];if(o.gift)steps.push({g:1,at:[.5,.42,1.02],who:'この夜の気づき',t:'「'+o.gift+'」'});
+ const steps=[...o.scenes.map(s=>({...s,who:o.who})),...(o.after?[{f:0,m:1,who:'マスター',t:o.after[0]},{f:0,who:o.who,t:o.after[1]}]:[])];el.classList.toggle('hazy',!!o.hazy);if(o.gift)steps.push({g:1,at:[.5,.42,1.02],who:'この夜の気づき',t:'「'+o.gift+'」'});
  let real=!!o.mem;im.src=real?o.mem.src:img;el.classList.remove('glow','fb','master','wait');ln.textContent='';
  const place=at=>{const b=el.querySelector('.mimg').getBoundingClientRect(),iw=im.naturalWidth||1,ih=im.naturalHeight||1,k=Math.max(b.width/iw,b.height/ih)*at[2],w=iw*k,h=ih*k;im.style.width=iw+'px';im.style.height=ih+'px';
   const tx=Math.min(0,Math.max(b.width-w,b.width/2-at[0]*w)),ty=Math.min(0,Math.max(b.height-h,b.height*.36-at[1]*h));im.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;};
  let i=-1,tm=null,typing=false,closed=false,cur=0,useB=false;
  const face=f=>{if(f===cur)return;cur=f;const tgt=useB?fa:fb;tgt.src=faceUrl(o,f);useB=!useB;el.classList.toggle('fb',useB);};
  const finishType=()=>{clearInterval(tm);tm=null;typing=false;ln.textContent=steps[i].t;el.classList.add('wait');};
- const go=()=>{i++;if(i>=steps.length){closed=true;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');el.classList.remove('gift');then();},900);return;}
+ const go=()=>{i++;if(i>=steps.length){closed=true;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');el.classList.remove('gift','hazy');then();},900);return;}
   const s=steps[i];el.classList.remove('wait');el.classList.toggle('master',!!s.m);el.classList.toggle('gift',!!s.g);wh.textContent=s.who;if(!s.m&&!s.g)face(s.f);
   if(s.at)place(real?s.at:[.5,.3+.08*(i%3),1+.12*i]);if(s.snd)sfxPlay(s.snd);if(s.hush)hush();if(s.glow){el.classList.add('glow');sChime();}
   ln.textContent='';typing=true;let j=0;tm=setInterval(()=>{ln.textContent=s.t.slice(0,++j);if(j>=s.t.length)finishType();},42);};
@@ -1117,7 +1114,7 @@ $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book'
 setTimeout(()=>{if(!ART)prePaint();},700);
 $('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
 $('openBtn').disabled=false;$('openBtn').textContent=S.night>1?`${S.night}夜目を開店する`:'開店する';
-if(LAB_MODE){document.querySelector('#intro .lead.main-version').textContent='実験版：聞いて、手で合わせる';document.querySelector('#intro .note.main-version').innerHTML='話から<b>今の気持ち</b>を読み取って、3本の<b>つまみ</b>で一杯を作り、出してください。合っているかどうかは、お客さんが教えてくれます。話の中の<b>気になる言葉をタップ</b>すると聞き返せて（3回まで）、細かな気持ちまで分かります。そこまで合わせると、<b>ぴったりの一杯</b>になります。';}
+if(LAB_MODE){document.querySelector('#intro .lead.main-version').textContent='実験版：聞いて、手で合わせる';document.querySelector('#intro .note.main-version').innerHTML='話から<b>今の気持ち</b>を読み取って、3本の<b>つまみ</b>で一杯を作ってください。<b>出せるのは一度きり</b>。気持ちが合うと、忘れていた記憶がよみがえります。言葉の細かなニュアンスまで配合で合わせると、<b>ぴったりの一杯</b>になります。';}
 if(!ARCHIVE_MODE)$('tip').textContent='段の名前の「?」で、気持ちの説明が出ます。外れても作り直せます。';
 
 /* ---------- 画面合わせ ---------- */
