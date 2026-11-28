@@ -57,10 +57,12 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .order.folded #qa{display:none}
 .dial{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:6px;padding:1px 0 3px}
 .dial .dl{font:700 13px/1.2 "Shippori Mincho",serif;color:var(--mute);text-align:center}
-.dt{position:relative;padding-top:8px}
+.dt{position:relative;padding-top:22px}
+.dr{position:absolute;top:0;right:13px;font-size:11.5px;line-height:1.2;color:var(--mute);white-space:nowrap}.dr b{color:var(--ink);font-weight:700}
+.tick{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:rgba(255,255,255,.8);box-shadow:0 0 2px rgba(0,0,0,.5);pointer-events:none}
 .dtrack{position:relative;height:10px;border-radius:6px;opacity:.9;margin:0 13px}
 .dband{position:absolute;top:-6px;bottom:-6px;border-radius:9px;border:1.5px solid rgba(255,255,255,.9);background:rgba(255,255,255,.2);display:none;pointer-events:none;transition:left .5s ease,width .5s ease}
-.dial input{position:absolute;left:0;top:-4px;width:100%;height:34px;margin:0;background:none;-webkit-appearance:none;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer}
+.dial input{position:absolute;left:0;top:10px;width:100%;height:34px;margin:0;background:none;-webkit-appearance:none;appearance:none;pointer-events:auto;touch-action:none;cursor:pointer}
 .dial input::-webkit-slider-runnable-track{background:none;height:34px}
 .dial input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:4px;border-radius:50%;background:#fff;border:2px solid rgba(11,17,36,.65);box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .dial input::-moz-range-track{background:none;height:34px}
@@ -385,13 +387,13 @@ const MAIN_STORIES=[
 /* ---------- 実験版（URLに ?lab）：言葉を聞き返し、つまみを手で合わせる ---------- */
 const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].gift,sky:'day',season:'winter',land:'rail',lab:1,
  text:'異動の話が来たんです。受けるつもりでいます。……なのに、返事だけができなくて。昼休みになると、あのストーブの前の席が、ちらつくんです。',
- goal:{sky:.2,season:.88,land:.82},
+ goal:{sky:.1,season:.9,land:.85},
  asks:[
-  {w:'異動の話',slot:'land',c:.82,r:.09,q:'いつ頃のお話です',a:'来月です。いつもの毎日の中に、急に分かれ目が来たみたいで。'},
-  {w:'受けるつもり',slot:'sky',c:.2,r:.16,q:'もう、迷ってはいないんですね',a:'ええ。決めたら、気持ちはすっと軽くなりました。……ほんの少しだけ、苦いものも残っていますけど。'},
-  {w:'返事だけができなくて',slot:'land',c:.82,r:.18,q:'何が、引き留めているんでしょう',a:'行くか残るか、ではないんです。その手前で、足が止まっている感じで。'},
-  {w:'ストーブの前の席',slot:'season',c:.88,r:.18,q:'どんな席なんです',a:'昼休みに、みんなで囲むんです。たいした話はしないのに、あそこだけ、あったかくて。'},
-  {w:'ちらつく',slot:'season',c:.88,r:.09,q:'思い出すと、どんな気持ちに',a:'あったかいのに……もうすぐ過ぎていくんだな、とも思うんです。'}],
+  {w:'異動の話',slot:'land',c:.85,r:.09,q:'いつ頃のお話です',a:'来月です。いつもの毎日の中に、急に分かれ目が来たみたいで。'},
+  {w:'受けるつもり',slot:'sky',c:.1,r:.12,q:'もう、迷ってはいないんですね',a:'ええ。決めたら、気持ちはすっと軽くなりました。……ほんの少しだけ、苦いものも残っていますけど。'},
+  {w:'返事だけができなくて',slot:'land',c:.85,r:.15,q:'何が、引き留めているんでしょう',a:'行くか残るか、ではないんです。その手前で、足が止まっている感じで。'},
+  {w:'ストーブの前の席',slot:'season',c:.9,r:.1,q:'どんな席なんです',a:'昼休みに、みんなで囲むんです。たいした話はしないのに、あそこだけ、あったかくて。'},
+  {w:'ちらつく',slot:'season',c:.9,r:.07,q:'思い出すと、どんな気持ちに',a:'あったかいのに……もうすぐ過ぎていくんだな、とも思うんです。'}],
  exact:'すっと軽いのに、ほんの少し苦い。あったかいのに、もうすぐ過ぎていく。……全部、そのままです。',
  missHint:{sky:['もっと、すっきり晴れていた気がします。','もう少しだけ、苦みが混じっていた気がします。'],season:['もう少し、名残惜しさが混じっていた気がします。','もっと、あたたかかった気がするんです。'],land:['もう少し、いつもの日に近かった気がします。','もっと、どちらへ進むか迷う場所だった気がして。']},
  scenes:MAIN_STORIES[0].scenes,after:MAIN_STORIES[0].after};
@@ -923,7 +925,7 @@ function guide(){if(LAB_MODE){think();labGuide();return;}think();const el=$('gui
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.style.whiteSpace='nowrap';el.hidden=false;}
 /* ---------- 実験版：聞き返す＋つまみで合わせる ---------- */
 const LABD={sky:['day','dusk','night'],season:['spring','summer','autumn','winter'],land:['torii','pole','rail']};
-const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{},t0:{},k:0};
+const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{},t0:{},k:0,zn:{}};
 /* つまみの位置から、各景色の濃さを決める。隣り合う景色が重なって、滑らかに溶け合う */
 const labSkyW=tm=>{const x=LB.v.sky*2;return tm==='day'?Math.max(0,1-x):tm==='dusk'?1-Math.abs(x-1):Math.max(0,x-1);};
 function labPl(slot,key){const ks=LABD[slot],d=Math.abs(LB.v[slot]*(ks.length-1)-ks.indexOf(key));return d>=1?0:Math.min(1,2*(1-d));}
@@ -932,20 +934,25 @@ function labW(A){if(LB.v.sky==null||!D.sky)return 0;const o=S.queue[S.idx];if(!o
  else{const sl=A.slot,key=A.replaces[0];if(LB.v[sl]==null||!D[sl])return 0;pos=base*labPl(sl,key);ans=A.tm===o.sky&&key===o[sl]?1:0;}
  return pos+(ans-pos)*k;}
 let LT=null;
-function labReset(){LB.k=0;LB.won=false;LB.exact=false;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
+function labReset(){LB.zn={};LB.k=0;LB.won=false;LB.exact=false;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
 function labColor(slot,v){const ks=LABD[slot],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),a=col(FEELW(ks[i]).c),b=col(FEELW(ks[i+1]).c);return a.clone().lerp(b,x-i);}
 function labTint(){if(!LAB_MODE)return;if(LB.v.sky!=null&&sel.sky){tintT.copy(labColor('sky',LB.v.sky));tintBT.copy(LB.v.season!=null&&sel.season?labColor('season',LB.v.season):tintT);}}
 function labRows(){const o=S.queue[S.idx];if(!o)return;
- if(LB.built!==S.idx){LB.built=S.idx;$('rows').innerHTML=['sky','season','land'].map(s=>{const ks=LABD[s];return `<div class="dial" data-s="${s}"><div class="dl">${LAB_L[s]}</div><div class="dt"><div class="dtrack" style="background:linear-gradient(90deg,${ks.map(k=>FEELW(k).c).join(',')})"><div class="dband"></div></div><input type="range" class="unset" min="0" max="1000" value="500" data-s="${s}" aria-label="${LAB_L[s]}"><div class="dn">${ks.map(k=>`<span>${esc(FEELW(k).t)}</span>`).join('')}</div></div></div>`;}).join('');
+ if(LB.built!==S.idx){LB.built=S.idx;$('rows').innerHTML=['sky','season','land'].map(s=>{const ks=LABD[s];return `<div class="dial" data-s="${s}"><div class="dl">${LAB_L[s]}</div><div class="dt"><div class="dr" data-s="${s}">まだ選んでいない</div><div class="dtrack" style="background:linear-gradient(90deg,${ks.map(k=>FEELW(k).c).join(',')})"><div class="dband"></div>${ks.slice(1).map((_,i)=>`<i class="tick" style="left:${(i+.5)/(ks.length-1)*100}%"></i>`).join('')}</div><input type="range" class="unset" min="0" max="1000" value="500" data-s="${s}" aria-label="${LAB_L[s]}"><div class="dn">${ks.map(k=>`<span>${esc(FEELW(k).t)}</span>`).join('')}</div></div></div>`;}).join('');
   $('rows').querySelectorAll('input').forEach(inp=>{const s=inp.dataset.s;
-   inp.addEventListener('input',()=>{if(!S.active)return;LB.v[s]=inp.value/1000;inp.classList.remove('unset');if(!$('order').classList.contains('folded')){finishSay();setFold(true);}labLive();clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),300);});
+   inp.addEventListener('input',()=>{if(!S.active)return;LB.v[s]=inp.value/1000;inp.classList.remove('unset');{const z=labZone(s);if(LB.zn[s]&&LB.zn[s]!==z)tone(1600,.05,.02);LB.zn[s]=z;}labRead(s);if(!$('order').classList.contains('folded')){finishSay();setFold(true);}labLive();clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),300);});
    inp.addEventListener('change',()=>{clearTimeout(LB.tm[s]);labSnap(s);});});}
  $('rows').querySelectorAll('.dial').forEach(d=>{const s=d.dataset.s,b=d.querySelector('.dband');let lo=0,hi=1,any=false;LB.asked.forEach(i=>{const k=o.asks[i];if(k.slot===s){any=true;lo=Math.max(lo,k.c-k.r);hi=Math.min(hi,k.c+k.r);}});
   if(any){b.style.display='block';b.style.left=lo*100+'%';b.style.width=(hi-lo)*100+'%';}else b.style.display='none';
-  const inp=d.querySelector('input');if(LB.v[s]==null){inp.classList.add('unset');inp.value=500;}});
+  const inp=d.querySelector('input');if(LB.v[s]==null){inp.classList.add('unset');inp.value=500;}labRead(s);});
  labLive();}
 const LAB_L={sky:'ベース',season:'香り',land:'飾り'};
 function labSnap(s){if(!LAB_MODE||!S.active||LB.v[s]==null)return;const ks=LABD[s],k=ks[Math.round(LB.v[s]*(ks.length-1))];if(sel[s]===k)return;if(T<busyUntil){clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),220);return;}const first=!sel[s]&&!D[s];sel[s]=k;if(first){LB.t0[s]=T+.65;act(s,k);}else if(s==='land')act(s,k);else{D[s]=k;recomputeFill();}labLive();}
+/* 置いた位置を言葉にする（正解かどうかは出さない） */
+function labRead(s){const el=document.querySelector(`.dr[data-s="${s}"]`);if(!el)return;if(LB.v[s]==null){el.textContent='まだ選んでいない';return;}
+ const ks=LABD[s],x=LB.v[s]*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),f=x-i,A=FEELW(ks[i]).t,B=FEELW(ks[i+1]).t;
+ if(f<.1){el.innerHTML=`<b>${esc(A)}</b>`;return;}if(f>.9){el.innerHTML=`<b>${esc(B)}</b>`;return;}
+ let b=Math.min(9,Math.max(1,Math.round(f*10)));const fa=f<.5;if(b===5)b=fa?4:6;const a=10-b;el.innerHTML=`${fa?'<b>':''}${esc(A)} ${a}${fa?'</b>':''} : ${fa?'':'<b>'}${b} ${esc(B)}${fa?'':'</b>'}`;}
 function labZone(s){return LABD[s][Math.round(LB.v[s]*(LABD[s].length-1))];}
 function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;
  $('serveBtn').disabled=!(S.active&&sel.sky&&sel.season&&sel.land);$('serveBtn').classList.remove('hit');labTint();labGuide();}
@@ -1000,7 +1007,7 @@ function act(slot,k){busyUntil=T+.55;readyAt=T+1.6;
  pourOrder=pourOrder.filter(x=>x!==slot);pourOrder.push(slot);const c=col(ING[slot].find(i=>i.k===k).c);
  dropInk(c,-.05,y=>{splash(-.05,y,c,slot==='sky'?'sky':k);if(sel[slot]!==k)return;recomputeFill();setRV(slot,k,c);D[slot]=k;},()=>sfx(slot,k));}
 function dropGarnish(k){if(garn){garn.die=true;dying.push(garn);}const m=makeGarnish(k);scene.add(m);garn={m,y:2.9,vy:0,st:'fall',k,a:Math.random()*6};m.position.set(.3,2.9,.12);}
-function clearGlass(){if(LAB_MODE){LB.v={sky:null,season:null,land:null};LB.hit=false;LB.k=0;LB.clar=0;LB.won=false;LB.exact=false;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
+function clearGlass(){if(LAB_MODE){LB.zn={};LB.v={sky:null,season:null,land:null};LB.hit=false;LB.k=0;LB.clar=0;LB.won=false;LB.exact=false;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
 $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
 $('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}};
 /* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
