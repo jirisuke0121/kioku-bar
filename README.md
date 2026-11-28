@@ -6,6 +6,7 @@
 気持ちに合う一杯を出すと、グラスの中に忘れていた記憶がよみがえります。
 
 - [現行版](https://jirisuke0121.github.io/kioku-bar/) は、以前の `?proto` と同じ3話を収録しています。
+- [実験版](https://jirisuke0121.github.io/kioku-bar/?lab) は、言葉を聞き返して、つまみを手で合わせる遊び方の試作です(1話)。
 - [旧本編のアーカイブ](https://jirisuke0121.github.io/kioku-bar/?archive) はタイトル画面からも開けます。以前と同じブラウザでは、保存済みの進行や図鑑を引き継げます。
 
 ## 遊び方
