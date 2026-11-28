@@ -392,6 +392,7 @@ const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].g
   {w:'返事だけができなくて',slot:'land',c:.82,r:.18,q:'何が、引き留めているんでしょう',a:'行くか残るか、ではないんです。その手前で、足が止まっている感じで。'},
   {w:'ストーブの前の席',slot:'season',c:.88,r:.18,q:'どんな席なんです',a:'昼休みに、みんなで囲むんです。たいした話はしないのに、あそこだけ、あったかくて。'},
   {w:'ちらつく',slot:'season',c:.88,r:.09,q:'思い出すと、どんな気持ちに',a:'あったかいのに……もうすぐ過ぎていくんだな、とも思うんです。'}],
+ exact:'すっと軽いのに、ほんの少し苦い。あったかいのに、もうすぐ過ぎていく。……全部、そのままです。',
  missHint:{sky:['もっと、すっきり晴れていた気がします。','もう少しだけ、苦みが混じっていた気がします。'],season:['もう少し、名残惜しさが混じっていた気がします。','もっと、あたたかかった気がするんです。'],land:['もう少し、いつもの日に近かった気がします。','もっと、どちらへ進むか迷う場所だった気がして。']},
  scenes:MAIN_STORIES[0].scenes,after:MAIN_STORIES[0].after};
 const FIN=[{k:'rain',n:'雨上がりトニック',e:'雨',c:'#9fb6d0'},{k:'fire',n:'花火リキュール',e:'花火',c:'#ff6a8a'},{k:'star',n:'流れ星シュガー',e:'流れ星',c:'#fff1a8'}];
@@ -931,7 +932,7 @@ function labW(A){if(LB.v.sky==null||!D.sky)return 0;const o=S.queue[S.idx];if(!o
  else{const sl=A.slot,key=A.replaces[0];if(LB.v[sl]==null||!D[sl])return 0;pos=base*labPl(sl,key);ans=A.tm===o.sky&&key===o[sl]?1:0;}
  return pos+(ans-pos)*k;}
 let LT=null;
-function labReset(){LB.k=0;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
+function labReset(){LB.k=0;LB.won=false;LB.exact=false;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
 function labColor(slot,v){const ks=LABD[slot],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),a=col(FEELW(ks[i]).c),b=col(FEELW(ks[i+1]).c);return a.clone().lerp(b,x-i);}
 function labTint(){if(!LAB_MODE)return;if(LB.v.sky!=null&&sel.sky){tintT.copy(labColor('sky',LB.v.sky));tintBT.copy(LB.v.season!=null&&sel.season?labColor('season',LB.v.season):tintT);}}
 function labRows(){const o=S.queue[S.idx];if(!o)return;
@@ -945,25 +946,24 @@ function labRows(){const o=S.queue[S.idx];if(!o)return;
  labLive();}
 const LAB_L={sky:'ベース',season:'香り',land:'飾り'};
 function labSnap(s){if(!LAB_MODE||!S.active||LB.v[s]==null)return;const ks=LABD[s],k=ks[Math.round(LB.v[s]*(ks.length-1))];if(sel[s]===k)return;if(T<busyUntil){clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),220);return;}const first=!sel[s]&&!D[s];sel[s]=k;if(first){LB.t0[s]=T+.65;act(s,k);}else if(s==='land')act(s,k);else{D[s]=k;recomputeFill();}labLive();}
-function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;let e2=0,hit=true,cs=0;for(const s of['sky','season','land']){const set=LB.v[s]!=null,d=set?Math.abs(LB.v[s]-o.goal[s]):.5;e2+=d*d;if(!set||d>.07)hit=false;const x=clamp((d-.07)/(.42-.07),0,1);if(set)cs+=1-x*x*(3-2*x);}
- LB.err=Math.sqrt(e2);LB.clar=Math.pow(cs/3,1.25);
- if(hit&&!LB.hit&&S.active){sClink();try{navigator.vibrate&&navigator.vibrate(18);}catch(e){}}LB.hit=hit;
- $('serveBtn').disabled=!(S.active&&sel.sky&&sel.season&&sel.land);$('serveBtn').classList.toggle('hit',hit&&S.active);labTint();labTone();labGuide();}
-function labTone(){const a=AC,on=!!(a&&!muted&&S.active&&LB.clar>.002);if(!on){if(LT&&AC)LT.g.gain.setTargetAtTime(0,AC.currentTime,.12);return;}
- if(!LT){const g=a.createGain();g.gain.value=0;g.connect(a.destination);const o1=a.createOscillator(),o2=a.createOscillator();o1.type=o2.type='sine';o1.frequency.value=330;o2.frequency.value=330;o1.connect(g);o2.connect(g);o1.start();o2.start();LT={g,o1,o2};}
- LT.g.gain.setTargetAtTime(.015+.03*LB.clar,a.currentTime,.1);LT.o2.frequency.setTargetAtTime(330*(1+Math.max(0,LB.err-.03)*.05),a.currentTime,.05);}
-function labGuide(){const el=$('guide');if(!S.active||saying){el.hidden=true;return;}const any=LB.v.sky!=null||LB.v.season!=null||LB.v.land!=null;
- el.textContent=LB.hit?'（……ここだ）':LB.clar>.55?'（もう少し。見えかけている）':LB.clar>.02?'（何かが、遠くに浮かんできた）':any?'（まだ、何も浮かんでこない）':'（言葉を聞き返して、つまみで今の気持ちに合わせる）';el.style.whiteSpace='nowrap';el.hidden=false;}
+function labZone(s){return LABD[s][Math.round(LB.v[s]*(LABD[s].length-1))];}
+function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;
+ $('serveBtn').disabled=!(S.active&&sel.sky&&sel.season&&sel.land);$('serveBtn').classList.remove('hit');labTint();labGuide();}
+function labTone(){if(LT&&AC)LT.g.gain.setTargetAtTime(0,AC.currentTime,.1);}
+function labGuide(){const el=$('guide');if(!S.active||saying){el.hidden=true;return;}const n=['sky','season','land'].filter(s=>LB.v[s]!=null).length;
+ el.textContent=n===0?'（話から今の気持ちを読んで、つまみで一杯を作る）':n<3?'（残りのつまみも、気持ちに合わせて）':LB.serves?'（さっきの言葉を手がかりに、もう一杯）':'（この一杯で、どうだろう）';el.style.whiteSpace='nowrap';el.hidden=false;}
 function labMark(){if(!LAB_MODE||saying)return;const o=S.queue[S.idx];if(!o||!o.asks||!S.active)return;let h=esc(o.text);o.asks.forEach((k,i)=>{h=h.replace(esc(k.w),`<span class="kw${LB.asked.includes(i)?' asked':''}" data-i="${i}" role="button" tabindex="0">${esc(k.w)}</span>`);});$('memory').innerHTML=h;
  const left=3-LB.asked.length,qa=$('qa');qa.innerHTML=`<p class="ql">${left>0?`気になる言葉をタップすると、聞き返せます（あと${left}回）`:'これ以上は、聞けそうにない。'}</p>`+LB.asked.map(i=>`<p class="q">マスター「${esc(o.asks[i].q)}」</p><p class="a">「${esc(o.asks[i].a)}」</p>`).join('');qa.hidden=false;}
 function labAsk(i){const o=S.queue[S.idx];if(!S.active||LB.asked.includes(i)||LB.asked.length>=3)return;LB.asked.push(i);tone(880,.25,.03);labMark();labRows();const c=$('order');c.scrollTop=c.scrollHeight;}
 $('memory').addEventListener('click',e=>{const k=e.target.closest('.kw');if(!k||!LAB_MODE)return;e.stopPropagation();labAsk(+k.dataset.i);});
 function labServe(){const o=S.queue[S.idx];if(!(sel.sky&&sel.season&&sel.land)||!S.active)return;LB.serves++;
- if(LB.hit){S.active=false;labLive();$('guide').hidden=true;$('serveBtn').disabled=true;setTimeout(startRecall,400);return;}
- let w='sky',wd=0;for(const s of['sky','season','land']){const d=LB.v[s]-o.goal[s];if(Math.abs(d)>Math.abs(wd)){wd=d;w=s;}}
- showReaction(o,2,snap(),'……何か、思い出しかけたのに。'+o.missHint[w][wd>0?0:1],()=>{});}
-function labCard(){const q=LB.asked.length,sv=LB.serves,rank=q===0&&sv===1?'言葉ひとつ聞かずに、心を読んだ':q<=1&&sv===1?'腕利きのマスター':sv===1?'一杯で、思い出させた':'粘り強いマスター';
- albumAdd(S.queue[S.idx].key);$('resultCard').innerHTML=`<h2>思い出の一杯</h2><p class="giftl"><small>この夜の気づき</small>「${esc(S.queue[S.idx].gift)}」</p><p class="lead" style="margin:4px 0;font-size:15px">${rank}</p><p class="mcount">聞き返した回数 ${q} / 3　・　出した杯 ${sv}</p><p class="memo" style="text-align:center">聞く回数を減らして、手の感覚だけで合わせられるか。もう一度、試せます。</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
+ const ok={},S3=['sky','season','land'];S3.forEach(s=>ok[s]=labZone(s)===o[s]);const n=S3.filter(s=>ok[s]).length;
+ if(n===3){LB.exact=S3.every(s=>Math.abs(LB.v[s]-o.goal[s])<=.08);LB.won=true;S.active=false;labLive();$('guide').hidden=true;$('serveBtn').disabled=true;setTimeout(startRecall,400);return;}
+ let w=null,wd=0;S3.forEach(s=>{if(ok[s])return;const d=LB.v[s]-o.goal[s];if(!w||Math.abs(d)>Math.abs(wd)){wd=d;w=s;}});
+ showReaction(o,2,snap(),(n===2?'近い……。':'……何か、思い出しかけたのに。')+o.missHint[w][wd>0?0:1],()=>{labGuide();});}
+function labCard(){const o=S.queue[S.idx],q=LB.asked.length,sv=LB.serves,ex=LB.exact;
+ const rank=ex&&q===0&&sv===1?'言葉ひとつ聞かずに、ぴったりの一杯':ex&&sv===1?'ぴったりの一杯':ex?'粘って、ぴったりの一杯':sv===1?'一杯で、思い出させた':'粘り強いマスター';
+ albumAdd(o.key);$('resultCard').innerHTML=`<h2>思い出の一杯</h2><p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p><p class="lead" style="margin:4px 0;font-size:15px">${rank}</p>${ex&&o.exact?`<p class="reply" style="font-size:15px">「${esc(o.exact)}」</p>`:''}<p class="mcount">聞き返した回数 ${q} / 3　・　出した杯 ${sv}</p><p class="memo" style="text-align:center">${ex?'聞き返す回数を減らして、話だけで読み切れるか。もう一度、試せます。':'聞き返すと、もっと細かな気持ちまで分かります。ぴったりの一杯を目指して、もう一度。'}</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
  $('result').hidden=false;$('labAgain').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;stopTheme();silT=0;clearGlass();setTimeout(showCustomer,800);};}
 function drawRows(){if(LAB_MODE){labRows();return;}const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(ARCHIVE_MODE&&S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
  $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));guide();}
@@ -1000,7 +1000,7 @@ function act(slot,k){busyUntil=T+.55;readyAt=T+1.6;
  pourOrder=pourOrder.filter(x=>x!==slot);pourOrder.push(slot);const c=col(ING[slot].find(i=>i.k===k).c);
  dropInk(c,-.05,y=>{splash(-.05,y,c,slot==='sky'?'sky':k);if(sel[slot]!==k)return;recomputeFill();setRV(slot,k,c);D[slot]=k;},()=>sfx(slot,k));}
 function dropGarnish(k){if(garn){garn.die=true;dying.push(garn);}const m=makeGarnish(k);scene.add(m);garn={m,y:2.9,vy:0,st:'fall',k,a:Math.random()*6};m.position.set(.3,2.9,.12);}
-function clearGlass(){if(LAB_MODE){LB.v={sky:null,season:null,land:null};LB.hit=false;LB.k=0;LB.clar=0;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
+function clearGlass(){if(LAB_MODE){LB.v={sky:null,season:null,land:null};LB.hit=false;LB.k=0;LB.clar=0;LB.won=false;LB.exact=false;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
 $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
 $('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}};
 /* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
@@ -1108,7 +1108,7 @@ $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book'
 setTimeout(()=>{if(!ART)prePaint();},700);
 $('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
 $('openBtn').disabled=false;$('openBtn').textContent=S.night>1?`${S.night}夜目を開店する`:'開店する';
-if(LAB_MODE){document.querySelector('#intro .lead.main-version').textContent='実験版：聞いて、手で合わせる';document.querySelector('#intro .note.main-version').innerHTML='お客さんの話の中の<b>気になる言葉をタップ</b>すると、聞き返せます（3回まで）。聞いたことを手がかりに、3本の<b>つまみ</b>を動かして、今の気持ちに合わせてください。近づくほど、グラスの景色のピントが合い、音が澄んでいきます。ぴたりと合うと、忘れていた記憶がよみがえります。';}
+if(LAB_MODE){document.querySelector('#intro .lead.main-version').textContent='実験版：聞いて、手で合わせる';document.querySelector('#intro .note.main-version').innerHTML='話から<b>今の気持ち</b>を読み取って、3本の<b>つまみ</b>で一杯を作り、出してください。合っているかどうかは、お客さんが教えてくれます。話の中の<b>気になる言葉をタップ</b>すると聞き返せて（3回まで）、細かな気持ちまで分かります。そこまで合わせると、<b>ぴったりの一杯</b>になります。';}
 if(!ARCHIVE_MODE)$('tip').textContent='段の名前の「?」で、気持ちの説明が出ます。外れても作り直せます。';
 
 /* ---------- 画面合わせ ---------- */
@@ -1178,8 +1178,8 @@ function update(dt){
  if(pour){pour.t+=dt;const a=pour.t<.1?pour.t/.1:pour.t>.8?Math.max(0,1-(pour.t-.8)/.2):1;stream.material.color.copy(pour.c);stream.material.opacity=a*.9;const top=3.6,bot=Math.max(BY0+.05,fy);stream.scale.y=top-bot;stream.position.set(-.06,(top+bot)/2,.02);if(pour.t>1){pour=null;stream.material.opacity=0;}}
  for(let i=DROPS.length-1;i>=0;i--){const d=DROPS[i];d.vy-=9*dt;d.y+=d.vy*dt;const sy=1+Math.min(-d.vy*.12,.7),sx=1/Math.sqrt(sy);d.m.scale.set(sx,sy,sx);d.m.position.set(d.x,d.y+.042*sy,.02);const s=fillCur>.02?fy:BY0+.06;if(d.y<=s){scene.remove(d.m);d.m.material.dispose();DROPS.splice(i,1);(d.snd||sPlop)();wob=Math.max(wob,1);ringT=0;mixStart(d.x,s,d.c);d.cb(s);}}
  for(let i=SPLS.length-1;i>=0;i--){const s=SPLS[i],P=s.P,v=s.v,a=s.pt.geometry.attributes.position.array;s.t+=dt;for(let j=0;j<a.length/3;j++){v[j*4+1]+=P.g*dt;a[j*3]+=(v[j*4]+Math.sin(T*3+v[j*4+3])*P.sw)*dt;a[j*3+1]+=v[j*4+1]*dt;a[j*3+2]+=v[j*4+2]*dt;}s.pt.geometry.attributes.position.needsUpdate=true;s.pt.material.opacity=Math.max(0,1-s.t/P.life);if(s.t>P.life){scene.remove(s.pt);s.pt.geometry.dispose();s.pt.material.dispose();SPLS.splice(i,1);}}
- LU.uFocus.value+=((LAB_MODE&&S.active?.1+.9*LB.clar:1)-LU.uFocus.value)*Math.min(1,dt*5);
- if(LAB_MODE){const kt=S.active?(LB.hit?1:clamp((LB.clar-.55)/.45,0,1)):LB.k;LB.k+=(kt-LB.k)*Math.min(1,dt*2.5);}
+ LU.uFocus.value+=(1-LU.uFocus.value)*Math.min(1,dt*5);
+ if(LAB_MODE){const kt=LB.won?1:0;LB.k+=(kt-LB.k)*Math.min(1,dt*1.6);}
  mixT+=dt;{const e=Math.min(1,mixT/2.4);LU.uMix.value=e*e*(3-2*e);}stirV*=Math.exp(-dt*.85);LU.uStir.value=stirV;LU.uDyeT.value+=dt;
  ringT=Math.min(1,ringT+dt/.7);ring.material.opacity=(1-ringT)*.5*(fillCur>.02?1:0);const rr=innerR(fy)*(.15+ringT*.8);ring.scale.set(rr,1,rr);ring.position.y=fy+.003;
  // ガーニッシュ
