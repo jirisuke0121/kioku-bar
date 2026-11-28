@@ -128,6 +128,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 #mem .mfaces{transition:opacity .6s}#mem.master .mfaces{opacity:.4}#mem.master .mwho{color:var(--mute)}#mem.master .mline{color:var(--mute)}
 #mem .mhint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 20px);text-align:center;font-size:12px;color:var(--mute);margin:0;opacity:0;transition:opacity .5s}
 #mem.wait .mhint{opacity:1}
+#mem.gift .mfaces{display:none}#mem.gift .mbox{grid-template-columns:1fr;text-align:center}#mem.gift .mline{font-size:21px;font-weight:700;min-height:4.5em;letter-spacing:.04em}#mem.gift .mwho{color:var(--accent);letter-spacing:.12em}
 @media (max-height:640px){#mem .mline{font-size:15px;min-height:6.6em}}
 #react{position:fixed;inset:0;z-index:7;display:grid;place-items:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .7s ease;cursor:pointer}
 #react.on{opacity:1;pointer-events:auto}
@@ -162,7 +163,7 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 .note{font-size:14px;color:var(--mute);text-align:left;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 14px}
 .version-link{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;color:var(--mute);font-size:13px;text-underline-offset:3px}
 [data-version="archive"] #intro .main-version,html:not([data-version="archive"]) #intro .archive-version{display:none}
-html:not([data-version="archive"]) #bookBtn,html:not([data-version="archive"]) #artBtn{display:none}
+html:not([data-version="archive"]) #artBtn{display:none}
 .stars{font-size:26px;letter-spacing:.25em;color:var(--accent)}
 .thumb{width:160px;aspect-ratio:4/5;border-radius:14px;object-fit:cover;border:1px solid var(--line);display:block;margin:0 auto 6px;background:#000}
 .reply{font:500 17px/1.8 "Shippori Mincho",serif}
@@ -173,6 +174,13 @@ html:not([data-version="archive"]) #bookBtn,html:not([data-version="archive"]) #
 .match .ok{color:#a6e6b8;border-color:rgba(166,230,184,.55);background:rgba(166,230,184,.08)}
 .memo{font-size:13px!important;color:var(--mute);text-align:left;background:rgba(255,255,255,.04);border-radius:10px;padding:8px 12px;line-height:1.7}
 .memo small{display:block;color:var(--accent);font-size:13px}
+.giftl{font:700 18px/1.7 "Shippori Mincho",serif;margin:10px 0 6px!important}.giftl small{display:block;font:500 12px/1.4 "Zen Kaku Gothic New",sans-serif;color:var(--accent);letter-spacing:.1em}
+.album{display:grid;gap:10px;margin:12px 0 4px;text-align:left}
+.ac{margin:0;display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:8px}
+.ac img,.ac .ph{width:84px;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:#0a0f22}
+.ac .ph{display:grid;place-items:center;color:var(--mute);font-size:22px}
+.ac figcaption{font:500 16px/1.7 "Shippori Mincho",serif}.ac small{display:block;font:500 12px/1.4 "Zen Kaku Gothic New",sans-serif;color:var(--accent);margin-bottom:2px}
+.ac.lock figcaption{color:var(--mute);font-size:14px}
 .reads{text-align:left;display:grid;gap:8px;margin:12px 0 6px}
 .rd{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:start;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
 .rd.ok{border-color:rgba(166,230,184,.4)}
@@ -335,7 +343,7 @@ const REGS=[
 const ARCHIVE_MODE=document.documentElement.dataset.version==='archive';
 const LAB_MODE=!ARCHIVE_MODE&&new URLSearchParams(location.search).has('lab');
 const MAIN_STORIES=[
- {who:'通勤中の会社員',key:'kaisha',sky:'day',season:'winter',land:'rail',
+ {who:'通勤中の会社員',key:'kaisha',gift:'あたたかい場所は、渡った先にもある。',sky:'day',season:'winter',land:'rail',
   text:'異動の話、受けようと思うんです。そう決めたら、気持ちはすっと軽くなって。……なのに、返事だけができないんです。昼休みにみんなで囲む、あのストーブの前の席が、ちらついて。',
   think:{sky:'決めた、と言う声は明るかった。行くかどうかは、もう迷っていないらしい。',season:'ストーブの席、か。仕事の話じゃない。この人が手放したくないものは、何だろう。',land:'それでも返事ができない。今夜のこの人は、どんな場所に立っているのか。',ready:'前にも、同じような場所に立ったことがあるはずだ。この一杯で、思い出してくれるといい。'},
   clue:['決めたら、気持ちはすっと軽くなって','みんなで囲む、あのストーブの前の席','返事だけができない'],
@@ -348,7 +356,7 @@ const MAIN_STORIES=[
    {f:1,at:[.78,.37,1.7],hush:1,t:'……でも、渡ったんだ。あのストーブの席は、渡った先にあったんだ。あの朝は、まだ誰の名前も知らなかったのに。'},
    {f:0,at:[.58,.42,1.05],glow:1,t:'なんだ。僕は、行った先であたたかい場所を見つけるのが、わりと得意だったんですね。……返事、明日します。'}],
   after:['返事は、もう決まりましたか。','ええ。でも送別会では、ストーブの前の席を譲ってもらいます。']},
- {who:'着物の女性',key:'kimono',sky:'dusk',season:'winter',land:'torii',
+ {who:'着物の女性',key:'kimono',gift:'手を離しても、待っていてくれる。',sky:'dusk',season:'winter',land:'torii',
   text:'来月、娘の結婚式なんです。準備は順調で、何も困っていないはずなのに……招待状の宛名を書いていたら、急に手が止まって。あの子の手を引いて歩いた頃の、小さな手の感触ばかり思い出すんです。おめでたいのに、変でしょう。',
   think:{sky:'おめでたい、と言いながら手が止まる。嬉しさだけの色では、なさそうだ。',season:'思い出しているのは、小さな手の感触。胸の内に残っているのは、何だろう。',land:'来月は結婚式。この人は今、どんな日を前にしているのか。',ready:'手を引いた日のほかにも、きっと何かある。この一杯で、思い出してくれるといい。'},
   clue:['おめでたいのに、変でしょう','手を引いて歩いた頃の、小さな手の感触','来月、娘の結婚式'],
@@ -361,7 +369,7 @@ const MAIN_STORIES=[
    {f:1,at:[.62,.22,2.4],hush:1,t:'……そう。途中で手を離して、先に上がっていったんだわ。それで鳥居の下で振り返って、「お母さん、早く」って。'},
    {f:0,at:[.58,.22,1.15],glow:1,t:'手を離しても、待っていてくれる子でした。……宛名の続き、書けそうです。'}],
   after:['式では、泣いてしまいそうですか。','泣きますよ、きっと。でも鳥居の下のあの子みたいに、笑って手を振ります。']},
- {who:'近所のおじさん',key:'ojisan',face:'shino',sky:'night',season:'spring',land:'pole',
+ {who:'近所のおじさん',key:'ojisan',gift:'言葉がなくても、隣は歩ける。',face:'shino',sky:'night',season:'spring',land:'pole',
   text:'幼なじみが、親の代からの店を畳んでね。来月から、まるで畑違いの仕事に就くらしい。今夜このあと、いつもの店で会うんだが……かける言葉がひとつも浮かばなくて。さっきから、ひとりで黙りこくってる。',
   think:{sky:'言葉が出ないと言って、黙りこくっている。にぎやかな色は、似合わないだろう。',season:'畑違いの仕事に就く、か。終わる話のようで、そうでもないらしい。',land:'会うのは、いつもの店。特別な席を用意する話ではなさそうだ。',ready:'言葉が見つからない夜が、前にもあったはずだ。この一杯で、思い出してくれるといい。'},
   clue:['さっきから、ひとりで黙りこくってる','来月から、まるで畑違いの仕事に就く','いつもの店で会う'],
@@ -376,7 +384,7 @@ const MAIN_STORIES=[
   after:['お時間は、大丈夫ですか。','おっと、もう行かないと。……あいつの分の勘定、今夜は俺が持つよ。']}
 ];
 /* ---------- 実験版（URLに ?lab）：言葉を聞き返し、つまみを手で合わせる ---------- */
-const LAB_STORY={who:'通勤中の会社員',key:'kaisha',sky:'day',season:'winter',land:'rail',lab:1,
+const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].gift,sky:'day',season:'winter',land:'rail',lab:1,
  text:'異動の話が来たんです。受けるつもりでいます。……なのに、返事だけができなくて。昼休みになると、あのストーブの前の席が、ちらつくんです。',
  goal:{sky:.2,season:.88,land:.82},
  asks:[
@@ -696,7 +704,7 @@ PD.renderOrder=8;sD.add(PD);
 const PAR={x:0,y:0};
 
 /* 手描きの絵（夕方×紅葉×電柱） */
-let ART=true;try{ART=localStorage.getItem('kioku-bar-art')!=='0';}catch(e){}
+let ART=true;try{ART=localStorage.getItem('kioku-bar-art')!=='0';}catch(e){}if(!ARCHIVE_MODE)ART=true;
 const AG=new THREE.PlaneGeometry(AS*MG,AS*MG/1.5);
 const ARTS=[];
 function addArt(file,order,depth,cond,replaces){const u={tMap:{value:blankTex},tGlow:{value:blankTex},tOver:{value:blankTex},uMul:{value:new THREE.Color(1,1,1)},uSil:{value:0},uSilC:{value:new THREE.Color()},uHaze:{value:0},uHazeC:{value:new THREE.Color()},uRim:{value:0},uRimC:{value:new THREE.Color()},uSun:{value:new THREE.Vector2(.5,.5)},uGlowAmt:{value:0},uOver:{value:0},uLift:{value:0},uRev:{value:0},uA:{value:1},uGam:{value:1}};
@@ -915,9 +923,14 @@ function guide(){if(LAB_MODE){think();labGuide();return;}think();const el=$('gui
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.style.whiteSpace='nowrap';el.hidden=false;}
 /* ---------- 実験版：聞き返す＋つまみで合わせる ---------- */
 const LABD={sky:['day','dusk','night'],season:['spring','summer','autumn','winter'],land:['torii','pole','rail']};
-const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{}};
+const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{},t0:{}};
+/* つまみの位置から、各景色の濃さを決める。隣り合う景色が重なって、滑らかに溶け合う */
+const labSkyW=tm=>{const x=LB.v.sky*2;return tm==='day'?Math.max(0,1-x):tm==='dusk'?1-Math.abs(x-1):Math.max(0,x-1);};
+function labPl(slot,key){const ks=LABD[slot],d=Math.abs(LB.v[slot]*(ks.length-1)-ks.indexOf(key));return d>=1?0:Math.min(1,2*(1-d));}
+function labW(A){if(LB.v.sky==null||!D.sky)return 0;const ws=labSkyW(A.tm);if(ws<=0)return 0;const base=A.tm==='dusk'?1:ws;if(A.slot==='sky')return base;
+ if(A.slot==='season')return LB.v.season==null||!D.season?0:base*labPl('season',A.replaces[0]);return LB.v.land==null||!D.land?0:base*labPl('land',A.replaces[0]);}
 let LT=null;
-function labReset(){LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
+function labReset(){LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
 function labColor(slot,v){const ks=LABD[slot],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),a=col(FEELW(ks[i]).c),b=col(FEELW(ks[i+1]).c);return a.clone().lerp(b,x-i);}
 function labTint(){if(!LAB_MODE)return;if(LB.v.sky!=null&&sel.sky){tintT.copy(labColor('sky',LB.v.sky));tintBT.copy(LB.v.season!=null&&sel.season?labColor('season',LB.v.season):tintT);}}
 function labRows(){const o=S.queue[S.idx];if(!o)return;
@@ -930,7 +943,7 @@ function labRows(){const o=S.queue[S.idx];if(!o)return;
   const inp=d.querySelector('input');if(LB.v[s]==null){inp.classList.add('unset');inp.value=500;}});
  labLive();}
 const LAB_L={sky:'ベース',season:'香り',land:'飾り'};
-function labSnap(s){if(!LAB_MODE||!S.active||LB.v[s]==null)return;const ks=LABD[s],k=ks[Math.round(LB.v[s]*(ks.length-1))];if(sel[s]===k)return;if(T<busyUntil){clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),220);return;}sel[s]=k;act(s,k);labLive();}
+function labSnap(s){if(!LAB_MODE||!S.active||LB.v[s]==null)return;const ks=LABD[s],k=ks[Math.round(LB.v[s]*(ks.length-1))];if(sel[s]===k)return;if(T<busyUntil){clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),220);return;}const first=!sel[s]&&!D[s];sel[s]=k;if(first){LB.t0[s]=T+.65;act(s,k);}else if(s==='land')act(s,k);else{D[s]=k;recomputeFill();}labLive();}
 function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;let e2=0,hit=true;for(const s of['sky','season','land']){const d=LB.v[s]==null?1:Math.abs(LB.v[s]-o.goal[s]);e2+=d*d;if(d>.07)hit=false;}
  LB.err=Math.sqrt(e2);const x=clamp((LB.err-.07)/(.42-.07),0,1);LB.clar=1-x*x*(3-2*x);
  if(hit&&!LB.hit&&S.active){sClink();try{navigator.vibrate&&navigator.vibrate(18);}catch(e){}}LB.hit=hit;
@@ -949,7 +962,7 @@ function labServe(){const o=S.queue[S.idx];if(!(sel.sky&&sel.season&&sel.land)||
  let w='sky',wd=0;for(const s of['sky','season','land']){const d=LB.v[s]-o.goal[s];if(Math.abs(d)>Math.abs(wd)){wd=d;w=s;}}
  showReaction(o,2,snap(),'……何か、思い出しかけたのに。'+o.missHint[w][wd>0?0:1],()=>{});}
 function labCard(){const q=LB.asked.length,sv=LB.serves,rank=q===0&&sv===1?'言葉ひとつ聞かずに、心を読んだ':q<=1&&sv===1?'腕利きのマスター':sv===1?'一杯で、思い出させた':'粘り強いマスター';
- $('resultCard').innerHTML=`<h2>思い出の一杯</h2><p class="lead" style="margin:4px 0">${rank}</p><p class="mcount">聞き返した回数 ${q} / 3　・　出した杯 ${sv}</p><p class="memo" style="text-align:center">聞く回数を減らして、手の感覚だけで合わせられるか。もう一度、試せます。</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
+ albumAdd(S.queue[S.idx].key);$('resultCard').innerHTML=`<h2>思い出の一杯</h2><p class="giftl"><small>この夜の気づき</small>「${esc(S.queue[S.idx].gift)}」</p><p class="lead" style="margin:4px 0;font-size:15px">${rank}</p><p class="mcount">聞き返した回数 ${q} / 3　・　出した杯 ${sv}</p><p class="memo" style="text-align:center">聞く回数を減らして、手の感覚だけで合わせられるか。もう一度、試せます。</p><div class="cardacts"><button class="btn pri" id="labAgain">もう一度</button><a class="btn" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">現行版へ</a></div>`;
  $('result').hidden=false;$('labAgain').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;stopTheme();silT=0;clearGlass();setTimeout(showCustomer,800);};}
 function drawRows(){if(LAB_MODE){labRows();return;}const showE=S.night<=1,slots=['sky','season','land'],fins=FIN.filter(f=>S.unlocked.includes(f.k));const items=x=>x==='fin'?fins:ING[x];if(fins.length)slots.push('fin');$('rows').innerHTML=slots.map(slot=>`<div class="row">${slot==="fin"?`<div class="lab">${LAB[slot]}</div>`:`<button class="lab dk" data-dict="${slot}" aria-label="${LAB[slot]}の気持ちの説明">${LAB[slot]}<i>?</i></button>`}<div class="chips">${items(slot).map(it=>`<button class="chip${sel[slot]===it.k?' on':''}" style="--c:${it.c}" data-s="${slot}" data-k="${it.k}" aria-pressed="${sel[slot]===it.k}"><i></i><b>${esc(it.n)}</b><span>${esc(slot==='fin'?'→'+it.e:(ARCHIVE_MODE&&S.known.includes(it.k)?SHORT[it.k]+'・':'')+it.t)}</span></button>`).join('')}</div></div>`).join('');
  $('serveBtn').disabled=!(sel.sky&&sel.season&&sel.land);document.querySelectorAll('.lab.dk').forEach(b=>b.classList.toggle('on',b.dataset.dict===dictOpen));guide();}
@@ -1046,21 +1059,22 @@ function startRecall(){moodStop(1.2);recall=1;gaze=true;$('hud').classList.add('
 function doServe(){if(LAB_MODE){const o=S.queue[S.idx];showMemory(o,3,snap(),'',labCard);return;}const o=S.queue[S.idx],m={sky:sel.sky===o.sky,season:sel.season===o.season,land:sel.land===o.land},n=m.sky+m.season+m.land;
  const img=snap(),key=`${sel.sky}-${sel.season}-${sel.land}`,name=cname(sel.sky,sel.season,sel.land,sel.fin),isNew=!BOOK[key];
  if(isNew){BOOK[key]={img,name};saveBook();}[sel.sky,sel.season,sel.land].forEach(k=>{if(!S.known.includes(k))S.known.push(k);});saveSV();let story='';if(o.reg&&n===3){S.eps[o.reg]++;const r=REGS.find(x=>x.id===o.reg);if(S.eps[o.reg]>=r.eps.length){if(!S.unlocked.includes(r.reward))S.unlocked.push(r.reward);const f=FIN.find(x=>x.k===r.reward);story=`${r.who}の物語を見届けました。<br>新しいお酒「${f.n}」が棚に並びます`;}else story=`${r.who}の話が、次の夜に続きます`;saveSV();}else if(o.reg)story='★3つで、話の続きが聞けます';S.results.push({img,n,name,isNew});sClink();
- $('resultCard').innerHTML=`<div class="rhead"><img class="thumb" src="${img}" alt=""><img class="face" src="${faceUrl(o,n===3?0:n===2?1:2)}" alt="${esc(o.who)}"></div><h2>${esc(name)}</h2><div class="stars" aria-hidden="true">${'★'.repeat(n)}${'☆'.repeat(3-n)}</div><p class="mcount">${o.scenes?'胸の内':'記憶'}と ${n}/3 一致</p>${story?`<p class="story">${story}</p>`:''}${o.scenes&&n===3?'':`<p class="reply">「${esc(reply(o,m))}」</p>`}${readsHTML(o,m)}${isNew&&ARCHIVE_MODE?'<span class="new">図鑑に新しく載りました</span>':''}<div class="talk" id="talk"></div><div class="cardacts">${o.talk?'<button class="btn" id="talkBtn">少し話す</button>':''}${o.scenes&&n<3?'<button class="btn" id="retryBtn">もう一度つくる</button>':''}<button class="btn pri" id="nextBtn">${S.idx<S.queue.length-1?'次のお客さん':'今夜を締めくくる'}</button></div>`;
+ const fresh=!!(o.scenes&&n===3&&!ARCHIVE_MODE&&albumAdd(o.key));
+ $('resultCard').innerHTML=`<div class="rhead"><img class="thumb" src="${img}" alt=""><img class="face" src="${faceUrl(o,n===3?0:n===2?1:2)}" alt="${esc(o.who)}"></div><h2>${esc(name)}</h2><div class="stars" aria-hidden="true">${'★'.repeat(n)}${'☆'.repeat(3-n)}</div><p class="mcount">${o.scenes?'胸の内':'記憶'}と ${n}/3 一致</p>${o.scenes&&n===3&&o.gift?`<p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p>${fresh?'<span class="new">アルバムに残りました</span>':''}`:''}${story?`<p class="story">${story}</p>`:''}${o.scenes&&n===3?'':`<p class="reply">「${esc(reply(o,m))}」</p>`}${readsHTML(o,m)}${isNew&&ARCHIVE_MODE?'<span class="new">図鑑に新しく載りました</span>':''}<div class="talk" id="talk"></div><div class="cardacts">${o.talk?'<button class="btn" id="talkBtn">少し話す</button>':''}${o.scenes&&n<3?'<button class="btn" id="retryBtn">もう一度つくる</button>':''}<button class="btn pri" id="nextBtn">${S.idx<S.queue.length-1?'次のお客さん':'今夜を締めくくる'}</button></div>`;
  (o.scenes&&n===3?showMemory:showReaction)(o,n,img,reply(o,m),()=>{$('result').hidden=false;});$('nextBtn').onclick=next;if($('retryBtn'))$('retryBtn').onclick=()=>{if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.results.pop();setTimeout(showCustomer,800);};if($('talkBtn'))$('talkBtn').onclick=()=>{$('talkBtn').remove();playTalk(o.talk,o.who);};}
 /* 記憶がよみがえる：一枚の絵をゆっくり動かしながら、お客さんが思い出し、自分で気づいていく */
 function sfxPlay(k){const a=ac();if(!a||muted||!SFX[k])return;SFX[k](a,sfxBus(a,.9*(SFXG[k]||2)),a.currentTime+.05,MIDF(72));}
 function hush(){if(!BGM||!AC)return;const g=BGM.out.gain,t=AC.currentTime,v=g.value;g.cancelScheduledValues(t);g.setValueAtTime(v,t);g.linearRampToValueAtTime(v*.12,t+.5);g.linearRampToValueAtTime(v,t+3.2);}
 function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.mimg img'),fa=el.querySelector('.mf.a'),fb=el.querySelector('.mf.b'),ln=el.querySelector('.mline'),wh=el.querySelector('.mwho');
- const steps=[...o.scenes.map(s=>({...s,who:o.who})),{f:0,m:1,who:'マスター',t:o.after[0]},{f:0,who:o.who,t:o.after[1]}];
+ const steps=[...o.scenes.map(s=>({...s,who:o.who})),{f:0,m:1,who:'マスター',t:o.after[0]},{f:0,who:o.who,t:o.after[1]}];if(o.gift)steps.push({g:1,at:[.5,.42,1.02],who:'この夜の気づき',t:'「'+o.gift+'」'});
  let real=!!o.mem;im.src=real?o.mem.src:img;el.classList.remove('glow','fb','master','wait');ln.textContent='';
  const place=at=>{const b=el.querySelector('.mimg').getBoundingClientRect(),iw=im.naturalWidth||1,ih=im.naturalHeight||1,k=Math.max(b.width/iw,b.height/ih)*at[2],w=iw*k,h=ih*k;im.style.width=iw+'px';im.style.height=ih+'px';
   const tx=Math.min(0,Math.max(b.width-w,b.width/2-at[0]*w)),ty=Math.min(0,Math.max(b.height-h,b.height*.36-at[1]*h));im.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;};
  let i=-1,tm=null,typing=false,closed=false,cur=0,useB=false;
  const face=f=>{if(f===cur)return;cur=f;const tgt=useB?fa:fb;tgt.src=faceUrl(o,f);useB=!useB;el.classList.toggle('fb',useB);};
  const finishType=()=>{clearInterval(tm);tm=null;typing=false;ln.textContent=steps[i].t;el.classList.add('wait');};
- const go=()=>{i++;if(i>=steps.length){closed=true;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');then();},900);return;}
-  const s=steps[i];el.classList.remove('wait');el.classList.toggle('master',!!s.m);wh.textContent=s.who;if(!s.m)face(s.f);
+ const go=()=>{i++;if(i>=steps.length){closed=true;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');el.classList.remove('gift');then();},900);return;}
+  const s=steps[i];el.classList.remove('wait');el.classList.toggle('master',!!s.m);el.classList.toggle('gift',!!s.g);wh.textContent=s.who;if(!s.m&&!s.g)face(s.f);
   if(s.at)place(real?s.at:[.5,.3+.08*(i%3),1+.12*i]);if(s.snd)sfxPlay(s.snd);if(s.hush)hush();if(s.glow){el.classList.add('glow');sChime();}
   ln.textContent='';typing=true;let j=0;tm=setInterval(()=>{ln.textContent=s.t.slice(0,++j);if(j>=s.t.length)finishType();},42);};
  fa.src=faceUrl(o,1);cur=1;
@@ -1083,7 +1097,12 @@ function openBook(){const keys=[];ING.sky.forEach(a=>ING.season.forEach(b=>ING.l
  $('bookCard').innerHTML=`<h2>図鑑</h2><p style="color:var(--mute);margin:0">見つけた一杯 ${got} / ${keys.length}</p><div class="grid">${keys.map(k=>{const b=BOOK[k.join('-')];return b?`<div class="cell"><img src="${b.img}" alt=""><span>${esc(b.name)}</span></div>`:'<div class="cell">？</div>';}).join('')}</div><div class="cardacts"><button class="btn pri" id="bookClose">閉じる</button></div>`;
  $('book').hidden=false;$('bookClose').onclick=()=>closeModal('book');}
 function closeModal(id){$(id).hidden=true;}
-$('bookBtn').onclick=openBook;
+let ALBUM=[];try{ALBUM=JSON.parse(localStorage.getItem('kioku-bar-album-v1')||'[]')||[];}catch(e){}if(!Array.isArray(ALBUM))ALBUM=[];
+function albumAdd(k){if(ALBUM.includes(k))return false;ALBUM.push(k);try{localStorage.setItem('kioku-bar-album-v1',JSON.stringify(ALBUM));}catch(e){}return true;}
+function openAlbum(){const n=MAIN_STORIES.filter(o=>ALBUM.includes(o.key)).length;
+ $('bookCard').innerHTML=`<h2>思い出のアルバム</h2><p style="color:var(--mute);margin:0">よみがえった記憶 ${n} / ${MAIN_STORIES.length}</p><div class="album">${MAIN_STORIES.map(o=>ALBUM.includes(o.key)?`<figure class="ac"><img src="art/memory/${o.key}.webp" alt="" loading="lazy"><figcaption><small>${esc(o.who)}</small>「${esc(o.gift)}」</figcaption></figure>`:`<figure class="ac lock"><div class="ph">？</div><figcaption><small>${esc(o.who)}</small>まだ、思い出していない</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="bookClose">閉じる</button></div>`;
+ $('book').hidden=false;$('bookClose').onclick=()=>closeModal('book');}
+$('bookBtn').onclick=ARCHIVE_MODE?openBook:openAlbum;if(!ARCHIVE_MODE)$('bookBtn').textContent='アルバム';
 $('book').addEventListener('click',e=>{if(e.target.id==='book')closeModal('book');});
 setTimeout(()=>{if(!ART)prePaint();},700);
 $('openBtn').onclick=()=>{try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}ac();$('intro').hidden=true;startNight();for(const tm in ARTSET){const A=ARTSET[tm];for(const f of['01_sky.webp',A.road]){const im=new Image();im.src='art/'+A.dir+f;}}};
@@ -1123,7 +1142,7 @@ function update(dt){
  SKY.m.position.set(-PAR.x*.03*AS,-PAR.y*.02,0);
  const blink=Math.floor(T*2.2)%2;
  const rep=replacedKeys(),hideAll=ART&&!D.sky;if(ART&&D.sky)for(const A of ARTS)if(A.tm===D.sky&&!A.ready&&!A.failed)loadArt(A);
- for(const A of ARTS){const on=ART&&A.cond();if(A.ready&&!on&&A.rev<=0&&D.sky&&A.tm!==D.sky){A.u.tMap.value.dispose();A.u.tMap.value=blankTex;A.ready=false;A.loading=false;}if(on&&!A.ready&&!A.failed)loadArt(A);if(A.rev<=.001&&on&&A.ready)A.sty=RVS[A.slot];if(A.delay>0)A.delay-=dt;else A.rev=clamp(A.rev+(on&&A.ready?dt/(recall?1.3:2.4):-dt/.7),0,1);A.m.visible=A.ready&&A.rev>.001;if(!A.m.visible)continue;A.u.uRev.value=A.rev;applyRV(A);const e=A.rev*A.rev*(3-2*A.rev);A.m.position.set(-PAR.x*A.depth*.05*AS,-.012-PAR.y*A.depth*.06-(1-e)*.025,0);}
+ for(const A of ARTS){const lw=LAB_MODE?labW(A):-1,on=ART&&(lw>=0?lw>.002:A.cond());if(A.ready&&!on&&A.rev<=0&&D.sky&&A.tm!==D.sky&&!(LAB_MODE&&A.slot==='sky')){A.u.tMap.value.dispose();A.u.tMap.value=blankTex;A.ready=false;A.loading=false;}if(on&&!A.ready&&!A.failed)loadArt(A);if(A.rev<=.001&&on&&A.ready)A.sty=RVS[A.slot];if(A.delay>0)A.delay-=dt;else A.rev=clamp(A.rev+(on&&A.ready?dt/(recall?1.3:LAB_MODE&&T-(LB.t0[A.slot]||0)>2.6?.25:2.4):-dt/(LAB_MODE?.25:.7)),0,1);A.m.visible=A.ready&&A.rev>.001;if(!A.m.visible)continue;A.u.uRev.value=A.rev;A.u.uA.value=lw>=0?lw:1;applyRV(A);const e=A.rev*A.rev*(3-2*A.rev);A.m.position.set(-PAR.x*A.depth*.05*AS,-.012-PAR.y*A.depth*.06-(1-e)*.025,0);}
  for(const L of LAYERS){const k2=L.cloud?(L.key==='clouds'?'clouds':'summer-cloud'):L.key;const on=!hideAll&&!!(L.always||L.key===D.season||L.key===D.land)&&!rep.has(k2);if(on&&!L.ready)ensure(L);
   if(L.rev<=.001&&on)L.sty=RVS[L.slot];if(L.delay>0)L.delay-=dt;else L.rev=clamp(L.rev+(on?dt/(recall?1.3:2.4):-dt/.7),0,1);L.m.visible=L.ready&&L.rev>.001;if(!L.m.visible)continue;applyRV(L);
   const u=L.u,e=L.rev*L.rev*(3-2*L.rev);u.uRev.value=L.rev;u.uGam.value=cur.gam;L.m.position.set(-PAR.x*L.depth*.05*AS,-PAR.y*L.depth*.06-(1-e)*.025,0);
