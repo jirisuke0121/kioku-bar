@@ -922,14 +922,16 @@ function guide(){if(LAB_MODE){think();labGuide();return;}think();const el=$('gui
  el.textContent=t+(!sel.sky?'（?で説明）':'');el.style.whiteSpace='nowrap';el.hidden=false;}
 /* ---------- 実験版：聞き返す＋つまみで合わせる ---------- */
 const LABD={sky:['day','dusk','night'],season:['spring','summer','autumn','winter'],land:['torii','pole','rail']};
-const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{},t0:{}};
+const LB={v:{sky:null,season:null,land:null},asked:[],serves:0,hit:false,clar:0,err:9,built:-1,tm:{},t0:{},k:0};
 /* つまみの位置から、各景色の濃さを決める。隣り合う景色が重なって、滑らかに溶け合う */
 const labSkyW=tm=>{const x=LB.v.sky*2;return tm==='day'?Math.max(0,1-x):tm==='dusk'?1-Math.abs(x-1):Math.max(0,x-1);};
 function labPl(slot,key){const ks=LABD[slot],d=Math.abs(LB.v[slot]*(ks.length-1)-ks.indexOf(key));return d>=1?0:Math.min(1,2*(1-d));}
-function labW(A){if(LB.v.sky==null||!D.sky)return 0;const ws=labSkyW(A.tm);if(ws<=0)return 0;const base=A.tm==='dusk'?1:ws;if(A.slot==='sky')return base;
- if(A.slot==='season')return LB.v.season==null||!D.season?0:base*labPl('season',A.replaces[0]);return LB.v.land==null||!D.land?0:base*labPl('land',A.replaces[0]);}
+function labW(A){if(LB.v.sky==null||!D.sky)return 0;const o=S.queue[S.idx];if(!o)return 0;const k=LB.k||0,base=A.tm==='dusk'?1:labSkyW(A.tm);let pos,ans;
+ if(A.slot==='sky'){pos=base;ans=A.tm==='dusk'||A.tm===o.sky?1:0;}
+ else{const sl=A.slot,key=A.replaces[0];if(LB.v[sl]==null||!D[sl])return 0;pos=base*labPl(sl,key);ans=A.tm===o.sky&&key===o[sl]?1:0;}
+ return pos+(ans-pos)*k;}
 let LT=null;
-function labReset(){LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
+function labReset(){LB.k=0;LB.t0={};LB.v={sky:null,season:null,land:null};LB.asked=[];LB.serves=0;LB.hit=false;LB.clar=0;LB.err=9;LB.built=-1;}
 function labColor(slot,v){const ks=LABD[slot],x=v*(ks.length-1),i=Math.min(ks.length-2,Math.floor(x)),a=col(FEELW(ks[i]).c),b=col(FEELW(ks[i+1]).c);return a.clone().lerp(b,x-i);}
 function labTint(){if(!LAB_MODE)return;if(LB.v.sky!=null&&sel.sky){tintT.copy(labColor('sky',LB.v.sky));tintBT.copy(LB.v.season!=null&&sel.season?labColor('season',LB.v.season):tintT);}}
 function labRows(){const o=S.queue[S.idx];if(!o)return;
@@ -943,8 +945,8 @@ function labRows(){const o=S.queue[S.idx];if(!o)return;
  labLive();}
 const LAB_L={sky:'ベース',season:'香り',land:'飾り'};
 function labSnap(s){if(!LAB_MODE||!S.active||LB.v[s]==null)return;const ks=LABD[s],k=ks[Math.round(LB.v[s]*(ks.length-1))];if(sel[s]===k)return;if(T<busyUntil){clearTimeout(LB.tm[s]);LB.tm[s]=setTimeout(()=>labSnap(s),220);return;}const first=!sel[s]&&!D[s];sel[s]=k;if(first){LB.t0[s]=T+.65;act(s,k);}else if(s==='land')act(s,k);else{D[s]=k;recomputeFill();}labLive();}
-function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;let e2=0,hit=true;for(const s of['sky','season','land']){const d=LB.v[s]==null?1:Math.abs(LB.v[s]-o.goal[s]);e2+=d*d;if(d>.07)hit=false;}
- LB.err=Math.sqrt(e2);const x=clamp((LB.err-.07)/(.42-.07),0,1);LB.clar=1-x*x*(3-2*x);
+function labLive(){const o=S.queue[S.idx];if(!o||!o.goal)return;let e2=0,hit=true,cs=0;for(const s of['sky','season','land']){const set=LB.v[s]!=null,d=set?Math.abs(LB.v[s]-o.goal[s]):.5;e2+=d*d;if(!set||d>.07)hit=false;const x=clamp((d-.07)/(.42-.07),0,1);if(set)cs+=1-x*x*(3-2*x);}
+ LB.err=Math.sqrt(e2);LB.clar=Math.pow(cs/3,1.25);
  if(hit&&!LB.hit&&S.active){sClink();try{navigator.vibrate&&navigator.vibrate(18);}catch(e){}}LB.hit=hit;
  $('serveBtn').disabled=!(S.active&&sel.sky&&sel.season&&sel.land);$('serveBtn').classList.toggle('hit',hit&&S.active);labTint();labTone();labGuide();}
 function labTone(){const a=AC,on=!!(a&&!muted&&S.active&&LB.clar>.002);if(!on){if(LT&&AC)LT.g.gain.setTargetAtTime(0,AC.currentTime,.12);return;}
@@ -998,7 +1000,7 @@ function act(slot,k){busyUntil=T+.55;readyAt=T+1.6;
  pourOrder=pourOrder.filter(x=>x!==slot);pourOrder.push(slot);const c=col(ING[slot].find(i=>i.k===k).c);
  dropInk(c,-.05,y=>{splash(-.05,y,c,slot==='sky'?'sky':k);if(sel[slot]!==k)return;recomputeFill();setRV(slot,k,c);D[slot]=k;},()=>sfx(slot,k));}
 function dropGarnish(k){if(garn){garn.die=true;dying.push(garn);}const m=makeGarnish(k);scene.add(m);garn={m,y:2.9,vy:0,st:'fall',k,a:Math.random()*6};m.position.set(.3,2.9,.12);}
-function clearGlass(){if(LAB_MODE){LB.v={sky:null,season:null,land:null};LB.hit=false;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
+function clearGlass(){if(LAB_MODE){LB.v={sky:null,season:null,land:null};LB.hit=false;LB.k=0;LB.clar=0;}sel.sky=sel.season=sel.land=sel.fin=null;D.fin=null;recomputeFill();if(garn){garn.die=true;dying.push(garn);garn=null;}drawRows();setTimeout(()=>{D.sky=D.season=D.land=null;},900);}
 $('resetBtn').onclick=()=>{if(!S.active)return;clearGlass();busyUntil=T+.9;};
 $('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}};
 /* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
@@ -1177,6 +1179,7 @@ function update(dt){
  for(let i=DROPS.length-1;i>=0;i--){const d=DROPS[i];d.vy-=9*dt;d.y+=d.vy*dt;const sy=1+Math.min(-d.vy*.12,.7),sx=1/Math.sqrt(sy);d.m.scale.set(sx,sy,sx);d.m.position.set(d.x,d.y+.042*sy,.02);const s=fillCur>.02?fy:BY0+.06;if(d.y<=s){scene.remove(d.m);d.m.material.dispose();DROPS.splice(i,1);(d.snd||sPlop)();wob=Math.max(wob,1);ringT=0;mixStart(d.x,s,d.c);d.cb(s);}}
  for(let i=SPLS.length-1;i>=0;i--){const s=SPLS[i],P=s.P,v=s.v,a=s.pt.geometry.attributes.position.array;s.t+=dt;for(let j=0;j<a.length/3;j++){v[j*4+1]+=P.g*dt;a[j*3]+=(v[j*4]+Math.sin(T*3+v[j*4+3])*P.sw)*dt;a[j*3+1]+=v[j*4+1]*dt;a[j*3+2]+=v[j*4+2]*dt;}s.pt.geometry.attributes.position.needsUpdate=true;s.pt.material.opacity=Math.max(0,1-s.t/P.life);if(s.t>P.life){scene.remove(s.pt);s.pt.geometry.dispose();s.pt.material.dispose();SPLS.splice(i,1);}}
  LU.uFocus.value+=((LAB_MODE&&S.active?.1+.9*LB.clar:1)-LU.uFocus.value)*Math.min(1,dt*5);
+ if(LAB_MODE){const kt=S.active?(LB.hit?1:clamp((LB.clar-.55)/.45,0,1)):LB.k;LB.k+=(kt-LB.k)*Math.min(1,dt*2.5);}
  mixT+=dt;{const e=Math.min(1,mixT/2.4);LU.uMix.value=e*e*(3-2*e);}stirV*=Math.exp(-dt*.85);LU.uStir.value=stirV;LU.uDyeT.value+=dt;
  ringT=Math.min(1,ringT+dt/.7);ring.material.opacity=(1-ringT)*.5*(fillCur>.02?1:0);const rr=innerR(fy)*(.15+ringT*.8);ring.scale.set(rr,1,rr);ring.position.y=fy+.003;
  // ガーニッシュ
