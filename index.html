@@ -1012,7 +1012,7 @@ $('hintBtn').onclick=()=>{if(S.active){setFold(false);say(S.queue[S.idx].text);}
 /* 聞く時間はカードを開き、作り始めたら畳む。タップで開閉して読み返せる */
 let saying=false;
 function setFold(f){$('order').classList.toggle('folded',f);if(typeof think==='function'&&typeof saying!=='undefined')think();$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'お話を開く':'お話を畳む');}
-$('order').onclick=()=>{if(saying){finishSay();return;}if(LAB_MODE&&!$('order').classList.contains('folded'))return;setFold(!$('order').classList.contains('folded'));};
+$('order').onclick=()=>{if(saying){finishSay();return;}setFold(!$('order').classList.contains('folded'));};
 $('fold').onclick=e=>{e.stopPropagation();finishSay();setFold(!$('order').classList.contains('folded'));};
 
 /* カメラ操作 */
@@ -1024,7 +1024,7 @@ canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercan
 function setGaze(v){gaze=v;$('gazeHint').textContent='タップで戻る';$('hud').classList.toggle('gaze',v);$('gazeHint').classList.toggle('on',v);}
 $('gazeBtn').onclick=()=>setGaze(true);
 addEventListener('keydown',e=>{if(e.key==='Escape'){if(gaze&&!recall)setGaze(false);closeModal('book');}});
-$('sndBtn').onclick=()=>{muted=!muted;$('sndBtn').style.opacity=muted?.45:1;if(muted){stopTheme(.3);moodStop(.3);}else if(S.active)moodStart(S.queue[S.idx]);if(!muted)ac();};
+$('sndBtn').onclick=()=>{muted=!muted;$('sndBtn').style.opacity=muted?.45:1;if(muted){stopTheme(.3);moodStop(.3);}else if(S.active)moodStart(LAB_MODE?{...S.queue[S.idx],sky:'night'}:S.queue[S.idx]);if(!muted)ac();};
 
 /* ---------- 客と夜 ---------- */
 let SV={night:1},BOOK={};
@@ -1036,7 +1036,7 @@ const S={night:SV.night|0||1,eps:{minato:(SV.eps&&SV.eps.minato)|0||(SV.ep|0),sh
 const saveSV=()=>{if(!ARCHIVE_MODE)return;try{localStorage.setItem('kioku-bar-save-v1',JSON.stringify({night:S.night,eps:S.eps,unlocked:S.unlocked,known:S.known}));}catch(e){}};
 const saveBook=()=>{if(!ARCHIVE_MODE)return;try{localStorage.setItem('kioku-bar-book-v1',JSON.stringify(BOOK));}catch(e){}};
 let sayTimer=null,sayText='';
-function say(t){sayText=t;clearInterval(sayTimer);saying=true;think();const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;think();labMark();guide();}},42);}
+function say(t){sayText=t;clearInterval(sayTimer);saying=true;think();if(LAB_MODE)labGuide();const el=$('memory');el.textContent='';let i=0;sayTimer=setInterval(()=>{el.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(sayTimer);saying=false;think();labMark();guide();}},42);}
 function finishSay(){clearInterval(sayTimer);const was=saying;saying=false;if(was||!LAB_MODE)$('memory').textContent=sayText;think();if(was){labMark();guide();}}
 function startNight(){if(LAB_MODE){S.night=1;S.queue=[{...LAB_STORY}];S.idx=0;S.results=[];S.queue.forEach(o=>{const im=new Image();im.onload=()=>{o.mem=im;};im.src='art/memory/'+o.key+'.webp';});showCustomer();return;}if(!ARCHIVE_MODE){S.night=1;S.queue=MAIN_STORIES.map(o=>({...o}));S.idx=0;S.results=[];S.queue.forEach(o=>{const im=new Image();im.onload=()=>{o.mem=im;};im.src='art/memory/'+o.key+'.webp';});showCustomer();return;}const regs=REGS.filter(r=>S.night>=r.from&&S.eps[r.id]<r.eps.length).map(r=>({...r.eps[S.eps[r.id]],who:r.who,look:r.look,rim:r.rim,reg:r.id,epNo:S.eps[r.id]+1,epAll:r.eps.length})),n=5-regs.length;if(S.deck.length<n)S.deck=S.deck.concat(ORDERS.slice().sort(()=>Math.random()-.5));const rs=S.deck.splice(0,n),gs=regs.slice(),q=[];while(gs.length||rs.length){if(gs.length&&(gs.length>=rs.length||!rs.length))q.push(gs.shift());if(rs.length)q.push(rs.shift());}const mi=q.findIndex(x=>x.reg==='minato');if(S.night===1&&mi>0)q.unshift(q.splice(mi,1)[0]);S.queue=q;S.idx=0;S.results=[];saveSV();showCustomer();}
 const FACEW={'仕事帰りの女性':'f1','大学生':'m1','通勤中の会社員':'m2','配達員':'m1','高校の先生':'m2','出張帰りの男性':'m2','ひとり客':'f1','終電を逃した青年':'m1','文庫本を持つ女性':'f1','自転車乗り':'m1','着物の女性':'f2','近所のおじさん':'m2','家族連れの父親':'m2','詩を書く人':'f2'};
@@ -1044,7 +1044,7 @@ const faceUrl=(o,e)=>`art/faces/${o.face||o.reg||FACEW[o.who]||'m2'}_${e}.webp`,
 function setFace(o){const u=faceUrl(o,1);$('ava').style.backgroundImage=`url(${u})`;silT=1;
  const use=t=>{silMat.map=t;silMat.color.set('#bdb8cc');silMat.needsUpdate=true;const asp=t.image.width/t.image.height;silS.scale.set(4.4*asp,4.4,1);};
  if(FTEX[u])use(FTEX[u]);else new THREE.TextureLoader().load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;FTEX[u]=t;if(S.queue[S.idx]===o)use(t);});}
-function showCustomer(){const o=S.queue[S.idx];if(LAB_MODE){labReset();$('qa').hidden=true;}sfxStep=0;setFold(false);$('tip').hidden=true;moodStart(o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;guide();},350);$('night').textContent=ARCHIVE_MODE?`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`:`${S.idx+1}/${S.queue.length}杯目`;drawRows();}
+function showCustomer(){const o=S.queue[S.idx];if(LAB_MODE){labReset();$('qa').hidden=true;}sfxStep=0;setFold(false);$('tip').hidden=true;moodStart(LAB_MODE?{...o,sky:'night'}:o);$('order').classList.add('out');setFace(o);setTimeout(()=>{$('who').textContent=o.reg?`${o.who}（${o.epNo}/${o.epAll}）`:o.who;$('order').classList.remove('out');say(o.text);S.active=true;guide();},350);$('night').textContent=ARCHIVE_MODE?`${S.night}夜目 ・ ${S.idx+1}/${S.queue.length}杯目`:`${S.idx+1}/${S.queue.length}杯目`;drawRows();}
 const cname=(a,b,c,f)=>`${SEAW[b]}と${LANDW[c]}の${SKYW[a]}`+(f?`、${FINW[f]}`:'');
 function reply(o,m){const miss=['sky','season','land'].filter(k=>!m[k]);if(o.scenes)return !miss.length?o.scenes[4].t:miss.length===1?o.miss[miss[0]]:o.missAll;if(!miss.length)return o.thanks;
  const t=miss.length===1?`近い……。でも、あの日はもう少し${FEELP[o[miss[0]]]}気がします。`:miss.length===2?'きれいですね。……でも、あの日の気持ちとは、少しちがうみたい。':'知らない景色……。でも、これはこれで、ほっとします。';
