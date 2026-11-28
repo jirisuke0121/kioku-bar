@@ -165,6 +165,9 @@ h1{font:700 20px/1.1 "Shippori Mincho",serif;margin:0 auto 0 0;letter-spacing:.1
 [data-version="archive"] #intro .main-version,html:not([data-version="archive"]) #intro .archive-version{display:none}
 html:not([data-version="archive"]) #artBtn{display:none}
 .stars{font-size:26px;letter-spacing:.25em;color:var(--accent)}
+.stars .slab{font:500 12px/1 "Zen Kaku Gothic New",sans-serif;letter-spacing:.08em;color:var(--mute);vertical-align:middle;margin-right:.6em}
+.autob{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom) + 12px);z-index:2;height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--line);background:rgba(11,17,36,.55);color:var(--mute);font:500 12px/1 "Zen Kaku Gothic New",sans-serif;cursor:pointer}
+.autob.on{color:var(--accent);border-color:var(--accent)}
 .thumb{width:160px;aspect-ratio:4/5;border-radius:14px;object-fit:cover;border:1px solid var(--line);display:block;margin:0 auto 6px;background:#000}
 .reply{font:500 17px/1.8 "Shippori Mincho",serif}
 .story{font-size:14px;color:var(--accent);margin:6px 0 0!important;line-height:1.6}
@@ -276,8 +279,8 @@ html:not([data-version="archive"]) #artBtn{display:none}
   </div>
 </div>
 <div id="rot" role="alert"><div class="rotbox"><div class="rotph" aria-hidden="true"></div><p>スマホを縦にして、遊んでください</p></div></div>
-<div id="mem" aria-live="polite"><div class="mimg"><img alt=""><div class="mglow"></div></div><div class="mbox"><div class="mfaces"><img class="mf a" alt=""><img class="mf b" alt=""></div><div class="mtxt"><p class="mwho"></p><p class="mline"></p></div></div><p class="mhint">タップで続ける</p></div>
-<div id="react" aria-live="polite"><div class="rbg"></div><div class="rbox"><div class="rfaces"><img class="rf a" alt=""><img class="rf b" alt=""></div><p class="rwho"></p><p class="rline"></p><p class="rhint">タップで続ける</p></div></div>
+<div id="mem" aria-live="polite"><div class="mimg"><img alt=""><div class="mglow"></div></div><div class="mbox"><div class="mfaces"><img class="mf a" alt=""><img class="mf b" alt=""></div><div class="mtxt"><p class="mwho"></p><p class="mline"></p></div></div><p class="mhint">タップで続ける</p><button class="autob" type="button" aria-pressed="false">オート</button></div>
+<div id="react" aria-live="polite"><div class="rbg"></div><div class="rbox"><div class="rfaces"><img class="rf a" alt=""><img class="rf b" alt=""></div><p class="rwho"></p><p class="rline"></p><p class="rhint">タップで続ける</p></div><button class="autob" type="button" aria-pressed="false">オート</button></div>
 <div class="modal" id="result" hidden><div class="card" id="resultCard"></div></div>
 <div class="modal" id="book" hidden><div class="card" id="bookCard"></div></div>
 <div id="err">3D表示を読み込めませんでした。通信状況を確認して再読み込みしてください。</div>
@@ -383,7 +386,7 @@ const MAIN_STORIES=[
   after:['お時間は、大丈夫ですか。','おっと、もう行かないと。……あいつの分の勘定、今夜は俺が持つよ。']}
 ];
 /* ---------- 実験版（URLに ?lab）：言葉を聞き返し、つまみを手で合わせる ---------- */
-const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].gift,sky:'day',season:'winter',land:'rail',lab:1,
+const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].gift,sky:'day',season:'winter',land:'rail',lab:1,think:MAIN_STORIES[0].think,
  text:'異動の話が来たんです。受けるつもりでいます。……なのに、返事だけができなくて。昼休みになると、あのストーブの前の席が、ちらつくんです。',
  goal:{sky:.2,season:.88,land:.82},
  asks:[
@@ -395,6 +398,8 @@ const LAB_STORY={who:'通勤中の会社員',key:'kaisha',gift:MAIN_STORIES[0].g
  exact:'すっと軽いのに、ほんの少し苦い。あったかいのに、もうすぐ過ぎていく。……全部、そのままです。',
  missHint:{sky:['もっと、すっきり晴れていた気がします。','もう少しだけ、苦みが混じっていた気がします。'],season:['もう少し、名残惜しさが混じっていた気がします。','もっと、あたたかかった気がするんです。'],land:['もう少し、いつもの日に近かった気がします。','もっと、どちらへ進むか迷う場所だった気がして。']},
  scenes:MAIN_STORIES[0].scenes,after:MAIN_STORIES[0].after};
+/* どのお客さんにも、マスターの胸の内（気持ちの読み取り方の手がかり）を必ず入れる */
+[...MAIN_STORIES,LAB_STORY].forEach(o=>{if(!o.think||!['sky','season','land','ready'].every(k=>o.think[k]))console.warn('マスターの胸の内が足りません：',o.who);});
 const FIN=[{k:'rain',n:'雨上がりトニック',e:'雨',c:'#9fb6d0'},{k:'fire',n:'花火リキュール',e:'花火',c:'#ff6a8a'},{k:'star',n:'流れ星シュガー',e:'流れ星',c:'#fff1a8'}];
 const FINW={rain:'雨',fire:'花火',star:'流れ星'};
 const PART={sky:'空の色',season:'季節',land:'あの場所の目印'},PARTS={sky:'ベース',season:'香り',land:'飾り'};
@@ -1049,7 +1054,12 @@ const FINALE={minato:{pos:'63% 50%',cap:'一年後の、雨上がり。'},shino:
 const FEELW=k=>[...ING.sky,...ING.season,...ING.land].find(i=>i.k===k);
 function readsHTML(o,m){return `<div class="reads">${['sky','season','land'].map((x,i)=>{const a=FEELW(o[x]),y=FEELW(sel[x]);if(o.scenes&&!m[x])return `<div class="rd ng"><span class="rl">${LAB[x]}</span><div><p class="rf1"><span class="mk">×</span>「${esc(y.t)}」では、なかったようです</p><p class="ry">${esc(y.n)}を選びました</p></div></div>`;return `<div class="rd ${m[x]?'ok':'ng'}"><span class="rl">${LAB[x]}</span><div><p class="rf1"><span class="mk">${m[x]?'○':'×'}</span>${o.scenes?'胸の内は':'あの日は'}「<b>${esc(a.t)}</b>」</p>${o.clue?`<p class="rq">「${esc(o.clue[i])}」</p>`:''}${m[x]?'':`<p class="ry">選んだのは ${esc(y.n)}（${esc(y.t)}）</p>`}</div></div>`;}).join('')}</div>`;}
 function showFinale(o,then){const F=FINALE[o.reg],el=$('finale'),im=el.querySelector('img'),hint=el.querySelector('.hint');let ok=false,gone=false;const go=()=>{if(!ok||gone)return;gone=true;clearTimeout(auto);then();el.classList.remove('on');hint.classList.remove('on');el.onclick=null;setTimeout(()=>{im.removeAttribute('src');},2000);};
- el.querySelector('small').textContent=o.who.replace(/^.*の(?=[^の]+さん$)/,'')+'の物語';el.querySelector('b').textContent=F.cap;im.style.objectPosition=F.pos;const open=()=>{el.classList.add('on');setTimeout(()=>{ok=true;hint.classList.add('on');},3200);};im.onload=open;im.onerror=()=>{ok=true;gone=true;then();};im.src='art/finale/'+o.reg+'.webp';const auto=setTimeout(()=>{ok=true;go();},14000);el.onclick=go;}
+ el.querySelector('small').textContent=o.who.replace(/^.*の(?=[^の]+さん$)/,'')+'の物語';el.querySelector('b').textContent=F.cap;im.style.objectPosition=F.pos;const open=()=>{el.classList.add('on');setTimeout(()=>{ok=true;hint.classList.add('on');},3200);};im.onload=open;im.onerror=()=>{ok=true;gone=true;then();};im.src='art/finale/'+o.reg+'.webp';const auto=AUTO?setTimeout(()=>{ok=true;go();},14000):0;el.onclick=go;}
+/* 送り方：基本はタップで送る。オートは任意でON（この夜の気づきは、オートでも止まる） */
+let AUTO=false;try{AUTO=localStorage.getItem('kioku-bar-auto')==='1';}catch(e){}
+let autoKick=null;const autoWait=t=>1600+t.length*65;
+function syncAuto(){document.querySelectorAll('.autob').forEach(b=>{b.classList.toggle('on',AUTO);b.setAttribute('aria-pressed',String(AUTO));});}
+document.querySelectorAll('.autob').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();AUTO=!AUTO;try{localStorage.setItem('kioku-bar-auto',AUTO?'1':'0');}catch(_){}syncAuto();if(autoKick)autoKick();}));syncAuto();
 let RC=0,recallSkip=null;document.addEventListener('pointerdown',()=>{if(recall&&recallSkip)recallSkip();},true);
 function startRecall(){moodStop(1.2);recall=1;gaze=true;$('hud').classList.add('gaze');{const o=S.queue[S.idx];playTheme(sel.sky,sel.season,sel.fin,(sel.sky===o.sky)+(sel.season===o.season)+(sel.land===o.land));}
  const re=[...LAYERS,...ARTS].filter(L=>L.m.visible&&L.rev>.9);re.forEach(L=>{L.rev=0;L.delay=.25+L.m.renderOrder*.2;});
@@ -1061,7 +1071,7 @@ function doServe(){if(LAB_MODE){const o=S.queue[S.idx];showMemory(o,3,snap(),'',
  const img=snap(),key=`${sel.sky}-${sel.season}-${sel.land}`,name=cname(sel.sky,sel.season,sel.land,sel.fin),isNew=!BOOK[key];
  if(isNew){BOOK[key]={img,name};saveBook();}[sel.sky,sel.season,sel.land].forEach(k=>{if(!S.known.includes(k))S.known.push(k);});saveSV();let story='';if(o.reg&&n===3){S.eps[o.reg]++;const r=REGS.find(x=>x.id===o.reg);if(S.eps[o.reg]>=r.eps.length){if(!S.unlocked.includes(r.reward))S.unlocked.push(r.reward);const f=FIN.find(x=>x.k===r.reward);story=`${r.who}の物語を見届けました。<br>新しいお酒「${f.n}」が棚に並びます`;}else story=`${r.who}の話が、次の夜に続きます`;saveSV();}else if(o.reg)story='★3つで、話の続きが聞けます';S.results.push({img,n,name,isNew});sClink();
  const fresh=!!(o.scenes&&n===3&&!ARCHIVE_MODE&&albumAdd(o.key));
- $('resultCard').innerHTML=`<div class="rhead"><img class="thumb" src="${img}" alt=""><img class="face" src="${faceUrl(o,n===3?0:n===2?1:2)}" alt="${esc(o.who)}"></div><h2>${esc(name)}</h2><div class="stars" aria-hidden="true">${'★'.repeat(n)}${'☆'.repeat(3-n)}</div><p class="mcount">${o.scenes?'胸の内':'記憶'}と ${n}/3 一致</p>${o.scenes&&n===3&&o.gift?`<p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p>${fresh?'<span class="new">アルバムに残りました</span>':''}`:''}${story?`<p class="story">${story}</p>`:''}${o.scenes&&n===3?'':`<p class="reply">「${esc(reply(o,m))}」</p>`}${readsHTML(o,m)}${isNew&&ARCHIVE_MODE?'<span class="new">図鑑に新しく載りました</span>':''}<div class="talk" id="talk"></div><div class="cardacts">${o.talk?'<button class="btn" id="talkBtn">少し話す</button>':''}${o.scenes&&n<3?'<button class="btn" id="retryBtn">もう一度つくる</button>':''}<button class="btn pri" id="nextBtn">${S.idx<S.queue.length-1?'次のお客さん':'今夜を締めくくる'}</button></div>`;
+ $('resultCard').innerHTML=`<div class="rhead"><img class="thumb" src="${img}" alt=""><img class="face" src="${faceUrl(o,n===3?0:n===2?1:2)}" alt="${esc(o.who)}"></div><h2>${esc(name)}</h2><div class="stars"><small class="slab">${o.scenes?'気持ちの近さ':'記憶の近さ'}</small><span aria-hidden="true">${'★'.repeat(n)}${'☆'.repeat(3-n)}</span></div><p class="mcount">${o.scenes?'胸の内':'記憶'}と ${n}/3 一致</p>${o.scenes&&n===3&&o.gift?`<p class="giftl"><small>この夜の気づき</small>「${esc(o.gift)}」</p>${fresh?'<span class="new">アルバムに残りました</span>':''}`:''}${story?`<p class="story">${story}</p>`:''}${o.scenes&&n===3?'':`<p class="reply">「${esc(reply(o,m))}」</p>`}${readsHTML(o,m)}${isNew&&ARCHIVE_MODE?'<span class="new">図鑑に新しく載りました</span>':''}<div class="talk" id="talk"></div><div class="cardacts">${o.talk?'<button class="btn" id="talkBtn">少し話す</button>':''}${o.scenes&&n<3?'<button class="btn" id="retryBtn">もう一度つくる</button>':''}<button class="btn pri" id="nextBtn">${S.idx<S.queue.length-1?'次のお客さん':'今夜を締めくくる'}</button></div>`;
  (o.scenes&&n===3?showMemory:showReaction)(o,n,img,reply(o,m),()=>{$('result').hidden=false;});$('nextBtn').onclick=next;if($('retryBtn'))$('retryBtn').onclick=()=>{if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.results.pop();setTimeout(showCustomer,800);};if($('talkBtn'))$('talkBtn').onclick=()=>{$('talkBtn').remove();playTalk(o.talk,o.who);};}
 /* 記憶がよみがえる：一枚の絵をゆっくり動かしながら、お客さんが思い出し、自分で気づいていく */
 function sfxPlay(k){const a=ac();if(!a||muted||!SFX[k])return;SFX[k](a,sfxBus(a,.9*(SFXG[k]||2)),a.currentTime+.05,MIDF(72));}
@@ -1071,10 +1081,11 @@ function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.m
  let real=!!o.mem;im.src=real?o.mem.src:img;el.classList.remove('glow','fb','master','wait');ln.textContent='';
  const place=at=>{const b=el.querySelector('.mimg').getBoundingClientRect(),iw=im.naturalWidth||1,ih=im.naturalHeight||1,k=Math.max(b.width/iw,b.height/ih)*at[2],w=iw*k,h=ih*k;im.style.width=iw+'px';im.style.height=ih+'px';
   const tx=Math.min(0,Math.max(b.width-w,b.width/2-at[0]*w)),ty=Math.min(0,Math.max(b.height-h,b.height*.36-at[1]*h));im.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;};
- let i=-1,tm=null,typing=false,closed=false,cur=0,useB=false;
+ let i=-1,tm=null,typing=false,closed=false,cur=0,useB=false,at=null;
+ const sched=()=>{clearTimeout(at);at=null;if(!AUTO||closed||i<0||typing||!steps[i]||steps[i].g)return;at=setTimeout(()=>{at=null;if(!closed&&!typing)go();},autoWait(steps[i].t));};autoKick=sched;
  const face=f=>{if(f===cur)return;cur=f;const tgt=useB?fa:fb;tgt.src=faceUrl(o,f);useB=!useB;el.classList.toggle('fb',useB);};
- const finishType=()=>{clearInterval(tm);tm=null;typing=false;ln.textContent=steps[i].t;el.classList.add('wait');};
- const go=()=>{i++;if(i>=steps.length){closed=true;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');el.classList.remove('gift');then();},900);return;}
+ const finishType=()=>{clearInterval(tm);tm=null;typing=false;ln.textContent=steps[i].t;el.classList.add('wait');sched();};
+ const go=()=>{clearTimeout(at);at=null;i++;if(i>=steps.length){closed=true;autoKick=null;el.onclick=null;el.classList.remove('on');setTimeout(()=>{el.classList.remove('glow');el.classList.remove('gift');then();},900);return;}
   const s=steps[i];el.classList.remove('wait');el.classList.toggle('master',!!s.m);el.classList.toggle('gift',!!s.g);wh.textContent=s.who;if(!s.m&&!s.g)face(s.f);
   if(s.at)place(real?s.at:[.5,.3+.08*(i%3),1+.12*i]);if(s.snd)sfxPlay(s.snd);if(s.hush)hush();if(s.glow){el.classList.add('glow');sChime();}
   ln.textContent='';typing=true;let j=0;tm=setInterval(()=>{ln.textContent=s.t.slice(0,++j);if(j>=s.t.length)finishType();},42);};
@@ -1085,14 +1096,16 @@ function showMemory(o,n,img,line,then){const el=$('mem'),im=el.querySelector('.m
 /* 提供した瞬間：グラスを覗いたお客さんの表情が変わり、あの日の気持ちを語る */
 function showReaction(o,n,img,line,then){const el=$('react'),fa=el.querySelector('.rf.a'),fb=el.querySelector('.rf.b'),ln=el.querySelector('.rline');
  el.querySelector('.rbg').style.backgroundImage=`url(${img})`;fa.src=faceUrl(o,1);fb.src=faceUrl(o,n===3?0:2);el.querySelector('.rwho').textContent=o.who;ln.textContent='';el.classList.remove('turn','done');
- let st=0,tm=null,closed=false;const type=()=>{st=1;let i=0;tm=setInterval(()=>{ln.textContent=line.slice(0,++i);if(i>=line.length){clearInterval(tm);tm=null;el.classList.add('done');st=2;}},38);};
+ let st=0,tm=null,closed=false,at=null;const close=()=>{if(closed)return;closed=true;clearTimeout(at);autoKick=null;el.onclick=null;el.classList.remove('on');setTimeout(then,450);};
+ const sched=()=>{clearTimeout(at);at=null;if(AUTO&&st===2&&!closed)at=setTimeout(close,autoWait(line));};autoKick=sched;
+ const type=()=>{st=1;let i=0;tm=setInterval(()=>{ln.textContent=line.slice(0,++i);if(i>=line.length){clearInterval(tm);tm=null;el.classList.add('done');st=2;sched();}},38);};
  const t1=setTimeout(()=>{el.classList.add('turn');if(n===3)sChime();},900),t2=setTimeout(type,1500);
  requestAnimationFrame(()=>el.classList.add('on'));
- el.onclick=()=>{if(closed)return;if(st===0){clearTimeout(t1);clearTimeout(t2);el.classList.add('turn');type();return;}if(st===1){clearInterval(tm);ln.textContent=line;el.classList.add('done');st=2;return;}closed=true;el.onclick=null;el.classList.remove('on');setTimeout(then,450);};}
+ el.onclick=()=>{if(closed)return;if(st===0){clearTimeout(t1);clearTimeout(t2);el.classList.add('turn');type();return;}if(st===1){clearInterval(tm);ln.textContent=line;el.classList.add('done');st=2;sched();return;}close();};}
 function playTalk(lines,who){const box=$('talk');let i=0;const step=()=>{if(i>=lines.length)return;const isM=i%2===0,p=document.createElement('p'),sm=document.createElement('small'),sp=document.createElement('span');p.className=isM?'m':'';sm.textContent=isM?'マスター':who;p.append(sm,sp);box.append(p);const t=lines[i++];let j=0;const tm=setInterval(()=>{j++;sp.textContent='「'+t.slice(0,j)+(j>=t.length?'」':'');if(j>=t.length){clearInterval(tm);setTimeout(step,500);}},38);};step();}
 function next(){if($('result').hidden)return;stopTheme();$('result').hidden=true;silT=0;clearGlass();S.idx++;if(S.idx>=S.queue.length)setTimeout(summary,700);else setTimeout(showCustomer,800);}
 function summary(){const tot=S.results.reduce((a,r)=>a+r.n,0),nw=S.results.filter(r=>r.isNew).length;
- const okN=S.results.filter(r=>r.n===3).length;$('resultCard').innerHTML=!ARCHIVE_MODE?`<h2>今夜は、ここまで</h2><p class="lead" style="margin:4px 0 2px">${okN===S.results.length?`${S.results.length}人とも、忘れていた景色を思い出して帰っていきました。`:okN?`${S.results.length}人のうち${okN}人が、忘れていた景色を思い出しました。`:'今夜は、まだ誰も思い出せませんでした。'}</p><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="nightBtn">もう一度、最初から</button></div>`:`<h2>${S.night}夜目、閉店です</h2><p class="stars">★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
+ const okN=S.results.filter(r=>r.n===3).length;$('resultCard').innerHTML=!ARCHIVE_MODE?`<h2>今夜は、ここまで</h2><p class="lead" style="margin:4px 0 2px">${okN===S.results.length?`${S.results.length}人とも、忘れていた景色を思い出して帰っていきました。`:okN?`${S.results.length}人のうち${okN}人が、忘れていた景色を思い出しました。`:'今夜は、まだ誰も思い出せませんでした。'}</p><p class="stars"><small class="slab">気持ちの近さ</small>★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><div class="cardacts"><button class="btn pri" id="nightBtn">もう一度、最初から</button></div>`:`<h2>${S.night}夜目、閉店です</h2><p class="stars"><small class="slab">記憶の近さ</small>★ ${tot} / ${S.results.length*3}</p><div class="strip">${S.results.map(r=>`<figure><img src="${r.img}" alt="${esc(r.name)}"><figcaption>${'★'.repeat(r.n)||'☆'}</figcaption></figure>`).join('')}</div><p>新しく図鑑に載った一杯：${nw}</p><div class="cardacts"><button class="btn" id="sumBook">図鑑を見る</button><button class="btn pri" id="nightBtn">次の夜へ</button></div>`;
  $('result').hidden=false;if($('sumBook'))$('sumBook').onclick=openBook;$('nightBtn').onclick=()=>{if($('result').hidden)return;$('result').hidden=true;S.night++;saveSV();startNight();};}
 function openBook(){const keys=[];ING.sky.forEach(a=>ING.season.forEach(b=>ING.land.forEach(c=>keys.push([a.k,b.k,c.k]))));const got=keys.filter(k=>BOOK[k.join('-')]).length;
  $('bookCard').innerHTML=`<h2>図鑑</h2><p style="color:var(--mute);margin:0">見つけた一杯 ${got} / ${keys.length}</p><div class="grid">${keys.map(k=>{const b=BOOK[k.join('-')];return b?`<div class="cell"><img src="${b.img}" alt=""><span>${esc(b.name)}</span></div>`:'<div class="cell">？</div>';}).join('')}</div><div class="cardacts"><button class="btn pri" id="bookClose">閉じる</button></div>`;
